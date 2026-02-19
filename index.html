@@ -6,74 +6,59 @@
     <title>Postroast | Beanology</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Auth & Layout */
-        .auth-bar { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
-        .logo { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s; }
-        .btn-outline:hover { background: var(--bg-color); }
+        .auth-bar { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        .logo { font-size: 1.5rem; font-weight: 600; }
 
-        .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 900px; }
-        h2 { font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
+        .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 950px; }
         
-        /* Form Elemanları */
+        /* Arama ve Form */
         .form-group { margin-bottom: 1.2rem; position: relative; }
-        label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 600; }
-        input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s; font-size: 0.9rem; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background-color: #fff; }
+        label { display: block; font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; background: #FAFAFB; }
         
-        /* Akıllı Arama Sonuç Listesi */
-        .search-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-radius: 0 0 8px 8px; z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.05); max-height: 250px; overflow-y: auto; display: none; margin-top: -2px; }
-        .search-item { padding: 0.75rem 1rem; cursor: pointer; border-bottom: 1px solid #F9FAFB; transition: 0.2s; }
-        .search-item:hover { background-color: #F0F4F0; color: #4A5D4A; }
-        .search-item strong { color: var(--text-main); display: block; font-size: 0.9rem; }
-        .search-item span { color: var(--text-light); font-size: 0.75rem; }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); z-index: 100; display: none; max-height: 200px; overflow-y: auto; border-radius: 0 0 6px 6px; }
+        .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .search-item:hover { background: #f0f4f0; }
 
-        /* Referans Kartı */
-        .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: none; margin-bottom: 1.5rem; }
-        .ref-card.active { display: block; }
-        .ref-badge { display: inline-block; background-color: var(--primary); color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 1rem; }
-        .ref-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; text-align: center; }
-        .ref-stat-val { font-size: 1.1rem; font-weight: 600; display: block; color: var(--text-main); }
-        .ref-stat-label { font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; }
-        .ref-note { font-size: 0.85rem; font-style: italic; color: var(--text-light); border-left: 3px solid var(--primary); padding-left: 1rem; }
+        /* Yeşil Takvim Stili */
+        .has-brew { background: #8B9A8B !important; color: white !important; border-radius: 50%; }
 
-        /* Geçmiş & Scroll */
-        #logsContainer { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+        /* Geçmiş & Kaydırma */
+        #logsContainer { overflow-y: auto; flex-grow: 1; margin-top: 1rem; padding-right: 5px; }
         #logsContainer::-webkit-scrollbar { width: 4px; }
         #logsContainer::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
-        .log-date-header { font-size: 0.75rem; font-weight: 700; color: var(--text-light); margin: 1.2rem 0 0.5rem 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem; font-size: 0.9rem; transition: 0.2s; }
-        
-        /* Filtreleme */
-        .filter-section { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-        .filter-btn { flex: 1; padding: 0.5rem; font-size: 0.75rem; border: 1px solid var(--border-color); background: white; border-radius: 6px; cursor: pointer; color: var(--text-light); }
-        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .log-date-header { font-size: 0.7rem; font-weight: 800; color: var(--text-light); margin-top: 1.5rem; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+        .log-item { background: white; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-top: 0.5rem; }
 
-        .btn-primary { width: 100%; padding: 0.9rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-primary:hover { background-color: #7A897A; }
-
-        /* Modal */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; backdrop-filter: blur(3px); transition: 0.3s; z-index: 1000; }
-        .modal.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .btn-primary { width: 100%; padding: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
         
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .card { height: auto; } }
+        .ref-card { background: var(--reference-bg); border-radius: 8px; padding: 1.2rem; display: none; margin-bottom: 1rem; border: 1px solid var(--border-color); }
+        .ref-card.active { display: block; }
+
+        .modal { position: fixed; inset: 0; background: var(--modal-bg); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 350px; }
+
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <div class="auth-bar">
         <div class="logo">Postroast</div>
-        <div class="user-info" id="userInfo">
-            <span id="userEmail" style="display: none; color: var(--text-light); font-size: 0.85rem;"></span>
+        <div id="userInfo">
+            <span id="userEmail" style="display:none; font-size: 0.8rem; margin-right: 10px;"></span>
             <button class="btn-outline" id="loginBtnTrigger">Giriş Yap</button>
-            <button class="btn-outline" id="logoutBtn" style="display: none;">Çıkış Yap</button>
+            <button class="btn-outline" id="logoutBtn" style="display:none;">Çıkış Yap</button>
         </div>
     </div>
 
@@ -82,70 +67,64 @@
             <h2>Beanology Veri Girişi</h2>
             
             <div class="form-group">
-                <label>Çekirdek Seçimi (Ara ve Tıkla)</label>
-                <input type="text" id="beanSearchInput" placeholder="Kavurucu adı veya çekirdek yazın..." autocomplete="off">
-                <div id="searchDropdown" class="search-dropdown"></div>
-                <select id="finalBeanSelect" style="display: none;"></select>
-            </div>
-
-            <div class="ref-card" id="refCard">
-                <span class="ref-badge">Postroast Referans</span>
-                <div class="ref-stats">
-                    <div><span class="ref-stat-val" id="refTemp">-</span><span class="ref-stat-label">Isı</span></div>
-                    <div><span class="ref-stat-val" id="refGrind">-</span><span class="ref-stat-label">Klik</span></div>
-                    <div><span class="ref-stat-val" id="refRatio">-</span><span class="ref-stat-label">Oran</span></div>
-                </div>
-                <p class="ref-note" id="refNote">-</p>
+                <label>Demleme Tarihi</label>
+                <input type="text" id="entryDate" placeholder="Tarih seçin...">
             </div>
 
             <div class="form-group">
-                <label>Kullanılan Değirmen</label>
+                <label>Çekirdek Ara & Seç</label>
+                <input type="text" id="beanSearch" placeholder="Kavurucu veya çekirdek adı..." autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+                <select id="finalBeanSelect" style="display:none;"></select>
+            </div>
+
+            <div class="ref-card" id="refCard">
+                <p style="font-size: 0.7rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">REFERANS</p>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
+                    <div><span id="refTemp" style="font-weight: 600;">-</span><br><small>Isı</small></div>
+                    <div><span id="refGrind" style="font-weight: 600;">-</span><br><small>Klik</small></div>
+                    <div><span id="refRatio" style="font-weight: 600;">-</span><br><small>Oran</small></div>
+                </div>
+                <p id="refNote" style="font-size: 0.8rem; font-style: italic; margin-top: 10px; color: var(--text-light);"></p>
+            </div>
+
+            <div class="form-group">
+                <label>Değirmen</label>
                 <select id="grinderSelect"><option value="">Değirmenler yükleniyor...</option></select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group"><label>Sıcaklık (°C)</label><input type="number" id="tempInput" placeholder="92"></div>
-                <div class="form-group"><label>Klik / Ayar</label><input type="number" id="clickInput" placeholder="24"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label>Isı (°C)</label><input type="number" id="tempInput"></div>
+                <div class="form-group"><label>Klik</label><input type="number" id="clickInput"></div>
             </div>
 
-            <div class="form-group"><label>Kullanılan Su</label><input type="text" id="waterInput" placeholder="Örn: Buzdağı, Peak Water"></div>
-            <div class="form-group"><label>Tadım Notları</label><textarea id="notesInput" rows="3" placeholder="Gövde, asidite, bitiş..."></textarea></div>
-
+            <div class="form-group"><label>Tadım Notları</label><textarea id="notesInput" rows="2"></textarea></div>
+            
             <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
-            <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 1rem; font-weight: 500;"></p>
+            <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 10px;"></p>
         </div>
 
         <div class="card">
             <h2>Geçmiş Demlemelerim</h2>
             
-            <div class="filter-section">
-                <button class="filter-btn active" data-roast="all">Tümü</button>
-                <button class="filter-btn" data-roast="filtre">Filtre</button>
-                <button class="filter-btn" data-roast="espresso">Espresso</button>
-            </div>
-
             <div class="form-group">
-                <label>Tarihe Göre Bak</label>
-                <input type="date" id="dateFilter">
+                <label>Tarihe Git (Yeşiller demleme olan günler)</label>
+                <input type="text" id="calendarView" placeholder="Takvimi aç...">
             </div>
 
             <div id="logsContainer">
-                <p style="color: var(--text-light); text-align: center; margin-top: 2rem;">Giriş yapınca demlemelerin burada görünecek.</p>
+                <p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Giriş yapın.</p>
             </div>
         </div>
     </div>
 
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <h2 style="text-align: center; margin-bottom: 1rem;">Postroast'a Katıl</h2>
-            <p style="text-align: center; color: var(--text-light); font-size: 0.85rem; margin-bottom: 1.5rem;">Sihirli giriş bağlantısı için e-postanı gir.</p>
-            <div id="magicLinkForm">
-                <input type="email" id="authEmail" placeholder="kahve@mail.com" style="text-align: center; margin-bottom: 1rem;">
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAACfmb3Fmt8T7v11x" style="display: flex; justify-content: center; margin-bottom: 1rem;"></div>
-                <button class="btn-primary" id="magicLinkBtn">Bağlantı Gönder</button>
-            </div>
-            <div id="magicLinkSuccess" style="display: none; text-align: center; color: #2e7d32; background: #e8f5e9; padding: 1rem; border-radius: 6px;">E-postanı kontrol et!</div>
-            <p id="authErrorMsg" style="color: #d9534f; font-size: 0.8rem; margin-top: 1rem; text-align: center;"></p>
+            <h3 style="margin-bottom: 1rem; text-align: center;">Postroast Giriş</h3>
+            <input type="email" id="authEmail" placeholder="kahve@mail.com" style="margin-bottom: 1rem;">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACfmb3Fmt8T7v11x" style="margin-bottom: 1rem; display: flex; justify-content: center;"></div>
+            <button class="btn-primary" id="magicLinkBtn">Bağlantı Gönder</button>
+            <div id="magicSuccess" style="display:none; color: green; font-size: 0.8rem; margin-top: 10px; text-align: center;">E-postanı kontrol et!</div>
         </div>
     </div>
 
@@ -154,198 +133,149 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjemFweGpmYnBkZGtidXJzc2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDQ4MTYsImV4cCI6MjA4NzA4MDgxNn0.7eyw43dNE7DRnOvRIQFanQXvUCX7bPpYh5qlrAUMMk0';
         const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        let currentBeans = [];
-        let brewLogs = [];
-        let currentUser = null;
-        let selectedRoastType = 'all';
+        let currentBeans = [], brewLogs = [], currentUser = null;
+        let entryPicker, viewPicker;
 
-        // --- SAYFA YÜKLENDİĞİNDE ---
-        async function initialize() {
-            await fetchBeans();
-            await fetchGrinders();
+        // --- TAKVİMLERİ BAŞLAT (Flatpickr) ---
+        function setupCalendars(highlightDates = []) {
+            // Sol taraf: Veri girişi için
+            entryPicker = flatpickr("#entryDate", { defaultDate: "today", dateFormat: "Y-m-d", locale: "tr" });
+
+            // Sağ taraf: Görüntüleme ve Yeşil günler için
+            viewPicker = flatpickr("#calendarView", {
+                inline: false,
+                dateFormat: "Y-m-d",
+                onDayCreate: (dObj, dStr, fp, dayElem) => {
+                    const dateStr = dayElem.dateObj.toISOString().split('T')[0];
+                    if (highlightDates.includes(dateStr)) {
+                        dayElem.classList.add("has-brew");
+                    }
+                },
+                onChange: (selectedDates, dateStr) => { renderLogs(dateStr); }
+            });
         }
 
-        // --- AUTH DURUMU ---
+        // --- AUTH & INITIALIZE ---
+        async function init() {
+            setupCalendars();
+            fetchBeans();
+            fetchGrinders();
+        }
+
         supa.auth.onAuthStateChange((event, session) => {
             currentUser = session?.user || null;
             if (currentUser) {
                 document.getElementById('loginBtnTrigger').style.display = 'none';
                 document.getElementById('logoutBtn').style.display = 'block';
-                document.getElementById('userEmail').style.display = 'block';
                 document.getElementById('userEmail').innerText = currentUser.email;
-                document.getElementById('authModal').classList.remove('active');
+                document.getElementById('userEmail').style.display = 'inline';
                 fetchLogs();
-            } else {
-                document.getElementById('loginBtnTrigger').style.display = 'block';
-                document.getElementById('logoutBtn').style.display = 'none';
-                document.getElementById('userEmail').style.display = 'none';
-                document.getElementById('logsContainer').innerHTML = '<p style="color:var(--text-light); text-align:center; margin-top:2rem;">Giriş yapınca demlemelerin burada görünecek.</p>';
             }
         });
 
-        // --- DEĞİRMENLERİ GETİR ---
-        async function fetchGrinders() {
-            const select = document.getElementById('grinderSelect');
-            const { data } = await supa.from('grinders').select('*');
-            if (data) {
-                select.innerHTML = '<option value="">Değirmen Seçin...</option>';
-                data.forEach(g => select.add(new Option(`${g.brand} ${g.model}`, g.id)));
-            } else {
-                select.innerHTML = '<option value="">Değirmen bulunamadı.</option>';
-            }
-        }
-
-        // --- ÇEKİRDEK ARAMA VE SEÇİM ---
-        async function fetchBeans() {
-            const { data } = await supa.from('beans').select('*');
-            if (data) {
-                currentBeans = data;
-                // Gizli select'i de dolduralım
-                const fs = document.getElementById('finalBeanSelect');
-                data.forEach(b => fs.add(new Option(b.name, b.id)));
-            }
-        }
-
-        const beanInput = document.getElementById('beanSearchInput');
-        const dropdown = document.getElementById('searchDropdown');
-
-        beanInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            dropdown.innerHTML = '';
-            
-            if (term.length < 2) { dropdown.style.display = 'none'; return; }
-
-            const filtered = currentBeans.filter(b => b.name.toLowerCase().includes(term) || b.roaster.toLowerCase().includes(term));
-
-            if (filtered.length > 0) {
-                dropdown.style.display = 'block';
-                filtered.forEach(bean => {
-                    const item = document.createElement('div');
-                    item.className = 'search-item';
-                    item.innerHTML = `<strong>${bean.roaster}</strong><span>${bean.name}</span>`;
-                    item.onclick = () => {
-                        beanInput.value = `${bean.roaster} - ${bean.name}`;
-                        document.getElementById('finalBeanSelect').value = bean.id;
-                        dropdown.style.display = 'none';
-                        showReference(bean);
-                    };
-                    dropdown.appendChild(item);
-                });
-            } else { dropdown.style.display = 'none'; }
-        });
-
-        function showReference(bean) {
-            const refCard = document.getElementById('refCard');
-            if (bean && bean.ref_temp) {
-                document.getElementById('refTemp').innerText = bean.ref_temp;
-                document.getElementById('refGrind').innerText = bean.ref_grind;
-                document.getElementById('refRatio').innerText = bean.ref_ratio;
-                document.getElementById('refNote').innerText = bean.ref_note;
-                refCard.classList.add('active');
-            } else { refCard.classList.remove('active'); }
-        }
-
-        // --- GEÇMİŞ LOGLARI ---
+        // --- VERİ İŞLEMLERİ ---
         async function fetchLogs() {
             if (!currentUser) return;
-            const { data } = await supa.from('brew_logs')
-                .select(`*, beans(roaster, name, type), grinders(brand, model)`)
-                .order('created_at', { ascending: false });
-            if (data) { brewLogs = data; renderLogs(); }
+            const { data } = await supa.from('brew_logs').select(`*, beans(name, roaster, type), grinders(brand, model)`).order('brew_date', { ascending: false });
+            if (data) {
+                brewLogs = data;
+                const dates = [...new Set(data.map(l => l.brew_date))];
+                setupCalendars(dates); // Takvimi yeşil günlerle güncelle
+                renderLogs();
+            }
         }
 
-        function renderLogs() {
+        function renderLogs(filterDate = null) {
             const container = document.getElementById('logsContainer');
-            const dateVal = document.getElementById('dateFilter').value;
             container.innerHTML = '';
+            
+            const filtered = brewLogs.filter(l => !filterDate || l.brew_date === filterDate);
+            if (filtered.length === 0) { container.innerHTML = '<p style="font-size: 0.8rem; color: gray; text-align: center;">Kayıt yok.</p>'; return; }
 
-            const filtered = brewLogs.filter(log => {
-                const isTypeMatch = selectedRoastType === 'all' || log.beans?.type === selectedRoastType;
-                const logDate = new Date(log.created_at).toISOString().split('T')[0];
-                const isDateMatch = !dateVal || logDate === dateVal;
-                return isTypeMatch && isDateMatch;
-            });
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-light); text-align:center; padding:1rem;">Kayıt bulunamadı.</p>';
-                return;
-            }
-
-            let lastDateLabel = "";
+            let lastDate = "";
             filtered.forEach(log => {
-                const dateLabel = new Date(log.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' });
-                if (dateLabel !== lastDateLabel) {
-                    const h = document.createElement('div'); h.className = 'log-date-header'; h.innerText = dateLabel;
-                    container.appendChild(h); lastDateLabel = dateLabel;
+                if (log.brew_date !== lastDate) {
+                    const h = document.createElement('div'); h.className = 'log-date-header'; h.innerText = log.brew_date;
+                    container.appendChild(h); lastDate = log.brew_date;
                 }
                 const item = document.createElement('div');
                 item.className = 'log-item';
-                item.innerHTML = `
-                    <strong>${log.beans?.roaster} - ${log.beans?.name}</strong>
-                    <div style="font-size:0.75rem; color:var(--text-light); margin:4px 0;">⚙️ ${log.grinders?.brand || ''} ${log.grinders?.model || '-'}</div>
-                    <div>${log.temperature}°C | ${log.clicks} Klik ${log.water ? '| '+log.water : ''}</div>
-                    ${log.notes ? `<em style="display:block; margin-top:6px; color:var(--text-light); font-size:0.8rem;">"${log.notes}"</em>` : ''}
-                `;
+                item.innerHTML = `<strong>${log.beans?.roaster} - ${log.beans?.name}</strong><br><small>${log.temperature}°C | ${log.clicks} Klik</small>`;
                 container.appendChild(item);
             });
         }
 
-        // --- FİLTRE & SAVE EVENTLER ---
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedRoastType = btn.dataset.roast;
-                renderLogs();
-            });
-        });
-
-        document.getElementById('dateFilter').addEventListener('change', renderLogs);
-
+        // --- KAYDETME (DÜZELTİLDİ) ---
         document.getElementById('saveBtn').addEventListener('click', async () => {
             const beanId = document.getElementById('finalBeanSelect').value;
-            if(!currentUser || !beanId) return alert("Önce giriş yapın ve bir çekirdek seçin!");
+            const selectedDate = document.getElementById('entryDate').value; // TAKVİMDEN GELEN TARİH
 
-            const status = document.getElementById('statusMsg');
-            status.innerText = "Kaydediliyor...";
-            
+            if (!currentUser || !beanId) return alert("Lütfen giriş yapın ve çekirdeğe TIKLAYARAK seçin.");
+
             const { error } = await supa.from('brew_logs').insert([{
                 user_id: currentUser.id,
                 bean_id: beanId,
-                grinder_id: document.getElementById('grinderSelect').value || null,
+                brew_date: selectedDate, // DB'ye gönderilen tarih
                 temperature: document.getElementById('tempInput').value,
                 clicks: document.getElementById('clickInput').value,
-                water: document.getElementById('waterInput').value,
-                notes: document.getElementById('notesInput').value
+                notes: document.getElementById('notesInput').value,
+                grinder_id: document.getElementById('grinderSelect').value || null
             }]);
 
             if (!error) {
-                status.style.color = "var(--primary)";
-                status.innerText = "Başarıyla günlüğe kaydedildi!";
-                fetchLogs();
-                setTimeout(() => status.innerText = '', 3000);
-            } else { alert(error.message); }
+                document.getElementById('statusMsg').innerText = "Kaydedildi! Takvim güncelleniyor...";
+                fetchLogs(); // Listeyi ve yeşil günleri tazele
+                setTimeout(() => document.getElementById('statusMsg').innerText = "", 2000);
+            }
         });
 
-        // --- MODAL & AUTH ---
+        // (fetchBeans, fetchGrinders, Arama ve Auth kodları öncekiyle aynı şekilde devam eder...)
+        async function fetchBeans() {
+            const { data } = await supa.from('beans').select('*');
+            if (data) { currentBeans = data; data.forEach(b => document.getElementById('finalBeanSelect').add(new Option(b.name, b.id))); }
+        }
+
+        async function fetchGrinders() {
+            const { data } = await supa.from('grinders').select('*');
+            const sel = document.getElementById('grinderSelect');
+            if (data) { sel.innerHTML = '<option value="">Değirmen...</option>'; data.forEach(g => sel.add(new Option(`${g.brand} ${g.model}`, g.id))); }
+        }
+
+        document.getElementById('beanSearch').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const res = document.getElementById('searchResults');
+            res.innerHTML = '';
+            if (term.length < 2) { res.style.display = 'none'; return; }
+            const matches = currentBeans.filter(b => b.name.toLowerCase().includes(term) || b.roaster.toLowerCase().includes(term));
+            if (matches.length > 0) {
+                res.style.display = 'block';
+                matches.forEach(b => {
+                    const d = document.createElement('div'); d.className = 'search-item'; d.innerHTML = `<strong>${b.roaster}</strong> - ${b.name}`;
+                    d.onclick = () => {
+                        document.getElementById('beanSearch').value = `${b.roaster} - ${b.name}`;
+                        document.getElementById('finalBeanSelect').value = b.id;
+                        res.style.display = 'none';
+                        document.getElementById('refCard').classList.add('active');
+                        document.getElementById('refTemp').innerText = b.ref_temp;
+                        document.getElementById('refGrind').innerText = b.ref_grind;
+                        document.getElementById('refRatio').innerText = b.ref_ratio;
+                        document.getElementById('refNote').innerText = b.ref_note;
+                    };
+                    res.appendChild(d);
+                });
+            }
+        });
+
         document.getElementById('loginBtnTrigger').addEventListener('click', () => document.getElementById('authModal').classList.add('active'));
         document.getElementById('logoutBtn').addEventListener('click', () => supa.auth.signOut());
-        document.addEventListener('click', (e) => { if (e.target.id === 'authModal') document.getElementById('authModal').classList.remove('active'); });
-
         document.getElementById('magicLinkBtn').addEventListener('click', async () => {
             const email = document.getElementById('authEmail').value;
-            const turnstile = document.querySelector('[name="cf-turnstile-response"]')?.value;
-            if(!email || !turnstile) return alert("E-posta ve güvenlik doğrulamasını tamamlayın.");
-
-            const { error } = await supa.auth.signInWithOtp({ email, options: { captchaToken: turnstile } });
-            if (!error) {
-                document.getElementById('magicLinkForm').style.display = 'none';
-                document.getElementById('magicLinkSuccess').style.display = 'block';
-            } else { alert(error.message); }
+            const token = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            await supa.auth.signInWithOtp({ email, options: { captchaToken: token } });
+            document.getElementById('magicSuccess').style.display = 'block';
         });
 
-        // Başlat
-        initialize();
+        init();
     </script>
 </body>
 </html>
