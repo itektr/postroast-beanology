@@ -11,61 +11,76 @@
     <style>
         :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        /* Sayfanın sonsuza uzamasını engelliyoruz. Tam ekran oturacak. */
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 1rem 2rem; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
         iframe { border: none !important; outline: none !important; box-shadow: none !important; }
 
-        /* 3 Sütun İçin Genişlikleri Artırdık */
-        .auth-bar { width: 100%; max-width: 1300px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .auth-bar { width: 100%; max-width: 1300px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); }
         .logo { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; }
         .user-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s; font-size: 0.85rem;}
 
-        /* 3'LÜ GRID YAPISI */
-        .container { max-width: 1300px; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; align-items: stretch; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 900px; }
-        h2 { font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
+        /* 3'LÜ GRID YAPISI VE KARTLARIN DİNAMİK BOYU */
+        .container { max-width: 1300px; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; flex-grow: 1; min-height: 0; }
         
-        .form-group { margin-bottom: 1.2rem; position: relative; }
-        label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 500;}
-        input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s;}
+        /* Kartların içi taşarsa kendi içinde kaydırır, sayfayı uzatmaz */
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; }
+        .card::-webkit-scrollbar { width: 4px; }
+        .card::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        h2 { font-size: 1.05rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
         
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+        /* Form elemanları biraz daha sıkılaştırıldı */
+        .form-group { margin-bottom: 0.8rem; position: relative; }
+        label { display: block; font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.3rem; font-weight: 500;}
+        input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s; font-size: 0.85rem;}
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
 
         .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-        .tab-btn { flex: 1; padding: 0.5rem; font-size: 0.75rem; border: 1px solid var(--border-color); background: white; border-radius: 4px; cursor: pointer; color: var(--text-light); }
+        .tab-btn { flex: 1; padding: 0.4rem; font-size: 0.75rem; border: 1px solid var(--border-color); background: white; border-radius: 4px; cursor: pointer; color: var(--text-light); }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; }
-        .search-item { padding: 0.75rem; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5; }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 150px; overflow-y: auto; display: none; }
+        .search-item { padding: 0.6rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid #f5f5f5; }
         .search-item:hover { background-color: var(--reference-bg); }
 
         #logsContainer { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
-        .log-date-header { font-size: 0.75rem; font-weight: 700; color: var(--text-light); margin: 1.2rem 0 0.5rem 0; text-transform: uppercase; }
-        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; font-size: 0.9rem; }
+        .log-date-header { font-size: 0.7rem; font-weight: 700; color: var(--text-light); margin: 1rem 0 0.4rem 0; text-transform: uppercase; }
+        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 0.6rem; font-size: 0.85rem; }
         
-        /* Müzik ve Ruh Hali Etiketleri */
-        .vibe-tag { font-size: 0.75rem; color: var(--primary); background: var(--reference-bg); padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 6px; margin-right: 4px; border: 1px solid #e0e5e0; }
-
+        .vibe-tag { font-size: 0.7rem; color: var(--primary); background: var(--reference-bg); padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; margin-right: 4px; border: 1px solid #e0e5e0; }
         .has-brew-date { background: var(--primary) !important; color: white !important; border-radius: 50%; border: none !important; }
 
-        .btn-primary { width: 100%; padding: 0.9rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-primary { width: 100%; padding: 0.8rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
         
-        .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: none; margin-bottom: 1.5rem;}
+        .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: none; margin-bottom: 1rem;}
         .ref-card.active { display: block; }
-        .ref-badge { display: inline-block; background-color: var(--primary); color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .ref-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; text-align: center; }
-        .ref-stat-val { font-size: 1.1rem; font-weight: 600; display: block; color: var(--text-main);}
-        .ref-stat-label { font-size: 0.75rem; color: var(--text-light); }
-        .ref-note { font-size: 0.85rem; font-style: italic; color: var(--text-light); border-left: 3px solid var(--primary); padding-left: 1rem; }
+        .ref-badge { display: inline-block; background-color: var(--primary); color: white; font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ref-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.8rem; text-align: center; }
+        .ref-stat-val { font-size: 1rem; font-weight: 600; display: block; color: var(--text-main);}
+        .ref-stat-label { font-size: 0.7rem; color: var(--text-light); }
+        .ref-note { font-size: 0.8rem; font-style: italic; color: var(--text-light); border-left: 3px solid var(--primary); padding-left: 0.8rem; }
+
+        /* FOOTER (YENİ) */
+        .footer { width: 100%; max-width: 1300px; display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-top: 1rem; padding-top: 0.5rem; color: var(--text-light); font-size: 0.75rem; font-weight: 500; border-top: 1px solid var(--border-color); }
+        .footer a { color: var(--text-light); display: flex; align-items: center; text-decoration: none; transition: 0.2s; }
+        .footer a:hover { color: var(--primary); }
+        .footer svg { width: 14px; height: 14px; margin-right: 4px; }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; backdrop-filter: blur(3px); transition: 0.3s; z-index: 1000;}
         .modal.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 12px; width: 350px; }
+        .modal-content { background: var(--card-bg); padding: 2rem; border-radius: 12px; width: 320px; }
 
-        /* Mobil ve Tablet İçin Duyarlılık */
-        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .card { height: auto; } }
+        /* Mobil Görünüm (Ekrana sığma iptal, kaydırma serbest) */
+        @media (max-width: 1024px) { 
+            body { height: auto; overflow: auto; padding: 1rem; } 
+            .container { grid-template-columns: 1fr; } 
+            .card { height: auto; overflow: visible; } 
+        }
     </style>
 </head>
 <body>
@@ -140,7 +155,7 @@
 
             <div class="form-group">
                 <label>Kullanılan Su</label>
-                <input type="text" id="waterInput" placeholder="Örn: Buzdağı, Arıtma, Peak Water">
+                <input type="text" id="waterInput" placeholder="Örn: Buzdağı, Arıtma...">
             </div>
             
             <div class="grid-3">
@@ -155,7 +170,7 @@
             
             <div class="form-group">
                 <label>Ruh Hali</label>
-                <input type="text" id="moodInput" placeholder="Örn: Yağmurlu bir sabah, dingin, biraz yorgun...">
+                <input type="text" id="moodInput" placeholder="Örn: Yağmurlu bir sabah, dingin...">
             </div>
 
             <div class="form-group">
@@ -165,18 +180,18 @@
 
             <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
                 <label>Tadım Notları</label>
-                <textarea id="notesInput" style="flex-grow: 1; resize: none;" placeholder="Unutmayın; iyi bir kahve sadece çekirdekle değil, o anki ruh halimiz ve arka planda çalan müzikle de demlenir. Bardaktaki notalar ve yansımalar neler? (Gövde, asidite, bitiş...)"></textarea>
+                <textarea id="notesInput" style="flex-grow: 1; resize: none;" placeholder="Unutmayın; iyi bir kahve sadece çekirdekle değil, o anki ruh halimiz ve arka planda çalan müzikle de demlenir. Bardaktaki notalar neler?"></textarea>
             </div>
             
             <div style="margin-top: 1rem;">
-                <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 10px; font-weight: 600; text-align: center;">Seçili Gün: Bugün</p>
+                <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 8px; font-weight: 600; text-align: center;">Seçili Gün: Bugün</p>
                 <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
-                <p id="statusMsg" style="text-align: center; font-size: 0.85rem; margin-top: 10px; font-weight: 600;"></p>
+                <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 8px; font-weight: 600;"></p>
             </div>
         </div>
 
         <div class="card">
-            <h2>Geçmiş Demlemelerim</h2>
+            <h2>Ritüel Arşivi</h2>
             
             <div class="filter-tabs">
                 <button class="tab-btn" data-type="all">Tümü</button>
@@ -193,16 +208,28 @@
         </div>
     </div>
 
+    <div class="footer">
+        <span>&copy; 2026 Post Roast.</span>
+        <a href="https://instagram.com/postroast.tr" target="_blank" title="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+            @postroast
+        </a>
+    </div>
+
     <div class="modal" id="authModal">
         <div class="modal-content">
             <h3 style="text-align: center; margin-bottom: 1rem;">Post Roast Giriş</h3>
             <div id="magicLinkForm">
-                <input type="email" id="authEmail" placeholder="kahve tutkunu @mail.com" style="margin-bottom: 1rem; text-align: center;">
+                <input type="email" id="authEmail" placeholder="kahvetutkunu@mail.com" style="margin-bottom: 1rem; text-align: center;">
                 <div class="cf-turnstile" data-sitekey="0x4AAAAAACfmb3Fmt8T7v11x" style="margin-bottom: 1rem; display: flex; justify-content: center;"></div>
                 <button class="btn-primary" id="magicLinkBtn">Bağlantı Gönder</button>
             </div>
-            <div id="magicLinkSuccess" style="display: none; text-align: center; color: #2e7d32; background: #e8f5e9; padding: 1rem; border-radius: 6px; font-size: 0.85rem;">
-                <b>Bağlantı Linkini Gönderdik!</b><br>E-postanızı kontrol eder misiniz?
+            <div id="magicLinkSuccess" style="display: none; text-align: center; color: #2e7d32; background: #e8f5e9; padding: 1rem; border-radius: 6px; font-size: 0.8rem;">
+                <b>Giriş Linkini Gönderdik!</b><br>E-postanızı kontrol eder misiniz?
             </div>
             <p id="authErrorMsg" style="color: #d9534f; font-size: 0.8rem; margin-top: 1rem; text-align: center;"></p>
         </div>
@@ -248,7 +275,7 @@
                 document.getElementById('authModal').classList.remove('active');
                 fetchLogs();
             } else {
-                document.getElementById('logsContainer').innerHTML = '<p style="color:var(--text-light); text-align:center; margin-top:2rem; font-size:0.9rem;">⚠️ Günlük kullanımı için giriş yapmalısınız.</p>';
+                document.getElementById('logsContainer').innerHTML = '<p style="color:var(--text-light); text-align:center; margin-top:2rem; font-size:0.85rem;">⚠️ Günlük kullanımı için giriş yapmalısınız.</p>';
             }
         });
 
@@ -289,7 +316,6 @@
                 if(log.water_k) waterDetails.push(`K:${log.water_k}`);
                 const waterStr = waterDetails.length > 0 ? ` | Su: ${waterDetails.join(', ')}` : '';
 
-                // Müzik ve Ruh Hali Görünümü
                 const moodTag = log.mood ? `<span class="vibe-tag">🎭 ${log.mood}</span>` : '';
                 const musicTag = log.music ? `<span class="vibe-tag">🎵 ${log.music}</span>` : '';
                 const vibeSection = (moodTag || musicTag) ? `<div style="margin-top: 8px;">${moodTag}${musicTag}</div>` : '';
