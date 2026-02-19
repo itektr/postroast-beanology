@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Postroast | Beanology</title>
+    <title>Post Roast | Ekstraksiyon Günlüğü</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -15,13 +15,15 @@
         
         iframe { border: none !important; outline: none !important; box-shadow: none !important; }
 
-        .auth-bar { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
-        .logo { font-size: 1.5rem; font-weight: 600; }
+        /* 3 Sütun İçin Genişlikleri Artırdık */
+        .auth-bar { width: 100%; max-width: 1300px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; }
         .user-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s; }
 
-        .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; min-height: 950px; }
+        /* 3'LÜ GRID YAPISI */
+        .container { max-width: 1300px; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; align-items: stretch; }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 900px; }
         h2 { font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
         
         .form-group { margin-bottom: 1.2rem; position: relative; }
@@ -40,12 +42,16 @@
         .search-item:hover { background-color: var(--reference-bg); }
 
         #logsContainer { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
-        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem; font-size: 0.9rem; }
+        .log-date-header { font-size: 0.75rem; font-weight: 700; color: var(--text-light); margin: 1.2rem 0 0.5rem 0; text-transform: uppercase; }
+        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; font-size: 0.9rem; }
+        
+        /* Müzik ve Ruh Hali Etiketleri */
+        .vibe-tag { font-size: 0.75rem; color: var(--primary); background: var(--reference-bg); padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 6px; margin-right: 4px; border: 1px solid #e0e5e0; }
+
         .has-brew-date { background: var(--primary) !important; color: white !important; border-radius: 50%; border: none !important; }
 
         .btn-primary { width: 100%; padding: 0.9rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
         
-        /* Efsane Referans Kartı Geri Geldi */
         .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: none; margin-bottom: 1.5rem;}
         .ref-card.active { display: block; }
         .ref-badge { display: inline-block; background-color: var(--primary); color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -58,13 +64,14 @@
         .modal.active { opacity: 1; visibility: visible; }
         .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 12px; width: 350px; }
 
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .card { height: auto; } }
+        /* Mobil ve Tablet İçin Duyarlılık */
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .card { height: auto; } }
     </style>
 </head>
 <body>
 
     <div class="auth-bar">
-        <div class="logo">Postroast</div>
+        <div class="logo">Post Roast</div>
         <div class="user-info">
             <span id="userEmail" style="display: none; color: var(--text-light);"></span>
             <button class="btn-outline" id="loginBtnTrigger">Giriş Yap</button>
@@ -74,7 +81,7 @@
 
     <div class="container">
         <div class="card">
-            <h2>Beanology Veri Girişi</h2>
+            <h2>Ritüel Seçkisi</h2>
             
             <div class="form-group">
                 <label>Çekirdek Ara & Seç</label>
@@ -84,13 +91,13 @@
             </div>
 
             <div class="ref-card" id="refCard">
-                <span class="ref-badge">Postroast Referans</span>
+                <span class="ref-badge">Referans</span>
                 <div class="ref-stats">
                     <div><span class="ref-stat-val" id="refTemp">-</span><span class="ref-stat-label">Isı</span></div>
                     <div><span class="ref-stat-val" id="refGrind">-</span><span class="ref-stat-label">Klik</span></div>
                     <div><span class="ref-stat-val" id="refRatio">-</span><span class="ref-stat-label">Oran</span></div>
                 </div>
-                <p class="ref-note" id="refNote">Örn: Yasemin, bergamot, siyah çay gövdesi...</p>
+                <p class="ref-note" id="refNote">Örn: Yasemin, bergamot...</p>
             </div>
 
             <div class="grid-2">
@@ -135,21 +142,37 @@
                 <label>Kullanılan Su</label>
                 <input type="text" id="waterInput" placeholder="Örn: Buzdağı, Arıtma, Peak Water">
             </div>
+            
             <div class="grid-3">
                 <div class="form-group"><label>Kalsiyum</label><input type="number" step="0.1" id="waterCa" placeholder="Ca"></div>
                 <div class="form-group"><label>Sodyum</label><input type="number" step="0.1" id="waterNa" placeholder="Na"></div>
                 <div class="form-group"><label>Potasyum</label><input type="number" step="0.1" id="waterK" placeholder="K"></div>
             </div>
+        </div>
+
+        <div class="card">
+            <h2>Atmosfer & Deneyim</h2>
+            
+            <div class="form-group">
+                <label>Ruh Hali</label>
+                <input type="text" id="moodInput" placeholder="Örn: Yağmurlu bir sabah, dingin, biraz yorgun...">
+            </div>
 
             <div class="form-group">
+                <label>Dinlediğiniz Müzik</label>
+                <input type="text" id="musicInput" placeholder="Örn: Miles Davis - Blue in Green">
+            </div>
+
+            <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
                 <label>Tadım Notları</label>
-                <textarea id="notesInput" rows="2" placeholder="Örn: Gövde, asidite, bitiş..."></textarea>
+                <textarea id="notesInput" style="flex-grow: 1; resize: none;" placeholder="Unutmayın; iyi bir kahve sadece çekirdekle değil, o anki ruh halimiz ve arka planda çalan müzikle de demlenir. Bardaktaki notalar ve yansımalar neler? (Gövde, asidite, bitiş...)"></textarea>
             </div>
             
-            <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 10px; font-weight: 600;">Seçili Gün: Bugün</p>
-            
-            <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
-            <p id="statusMsg" style="text-align: center; font-size: 0.85rem; margin-top: 10px; font-weight: 600;"></p>
+            <div style="margin-top: 1rem;">
+                <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 10px; font-weight: 600; text-align: center;">Seçili Gün: Bugün</p>
+                <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
+                <p id="statusMsg" style="text-align: center; font-size: 0.85rem; margin-top: 10px; font-weight: 600;"></p>
+            </div>
         </div>
 
         <div class="card">
@@ -172,7 +195,7 @@
 
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <h3 style="text-align: center; margin-bottom: 1rem;">Postroast Giriş</h3>
+            <h3 style="text-align: center; margin-bottom: 1rem;">Post Roast Giriş</h3>
             <div id="magicLinkForm">
                 <input type="email" id="authEmail" placeholder="kahve@mail.com" style="margin-bottom: 1rem; text-align: center;">
                 <div class="cf-turnstile" data-sitekey="0x4AAAAAACfmb3Fmt8T7v11x" style="margin-bottom: 1rem; display: flex; justify-content: center;"></div>
@@ -266,11 +289,17 @@
                 if(log.water_k) waterDetails.push(`K:${log.water_k}`);
                 const waterStr = waterDetails.length > 0 ? ` | Su: ${waterDetails.join(', ')}` : '';
 
+                // Müzik ve Ruh Hali Görünümü
+                const moodTag = log.mood ? `<span class="vibe-tag">🎭 ${log.mood}</span>` : '';
+                const musicTag = log.music ? `<span class="vibe-tag">🎵 ${log.music}</span>` : '';
+                const vibeSection = (moodTag || musicTag) ? `<div style="margin-top: 8px;">${moodTag}${musicTag}</div>` : '';
+
                 div.innerHTML = `
                     <strong>${log.beans?.roaster} - ${log.beans?.name}</strong>
                     ${equipStr}
                     <div style="font-size:0.8rem;">${log.temperature}°C | ${log.clicks} Klik ${waterStr}</div>
-                    <em style="font-size:0.75rem; color:var(--text-light); display:block; margin-top:4px;">"${log.notes || ''}"</em>
+                    <em style="font-size:0.75rem; color:var(--text-light); display:block; margin-top:6px;">"${log.notes || ''}"</em>
+                    ${vibeSection}
                 `;
                 container.appendChild(div);
             });
@@ -299,6 +328,8 @@
                 water_ca: document.getElementById('waterCa').value || null,
                 water_na: document.getElementById('waterNa').value || null,
                 water_k: document.getElementById('waterK').value || null,
+                mood: document.getElementById('moodInput').value || null,
+                music: document.getElementById('musicInput').value || null,
                 notes: document.getElementById('notesInput').value || null
             }]);
 
@@ -309,7 +340,7 @@
                 status.style.color = "var(--primary)"; 
                 status.innerText = "✅ Başarıyla kaydedildi!"; 
                 
-                ['tempInput', 'clickInput', 'waterInput', 'waterCa', 'waterNa', 'waterK', 'notesInput', 'brewerSelect', 'filterSelect'].forEach(id => {
+                ['tempInput', 'clickInput', 'waterInput', 'waterCa', 'waterNa', 'waterK', 'notesInput', 'brewerSelect', 'filterSelect', 'moodInput', 'musicInput'].forEach(id => {
                     document.getElementById(id).value = '';
                 });
                 
@@ -346,7 +377,7 @@
                         document.getElementById('refTemp').innerText = b.ref_temp || '-';
                         document.getElementById('refGrind').innerText = b.ref_grind || '-';
                         document.getElementById('refRatio').innerText = b.ref_ratio || '-';
-                        document.getElementById('refNote').innerText = b.ref_note || 'Örn: Yasemin, bergamot, siyah çay gövdesi...';
+                        document.getElementById('refNote').innerText = b.ref_note || 'Örn: Yasemin, bergamot...';
                     };
                     res.appendChild(d);
                 });
