@@ -9,56 +9,67 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
+        /* TAMAMEN SENİN ORİJİNAL TASARIMIN */
         :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .auth-bar { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
-        .logo { font-size: 1.5rem; font-weight: 600; }
+        .auth-bar { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; }
+        .user-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s;}
+        .btn-outline:hover { background: var(--bg-color); }
 
         .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 950px; }
-        
-        /* Arama ve Form */
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 850px; }
+        h2 { font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
         .form-group { margin-bottom: 1.2rem; position: relative; }
-        label { display: block; font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 600; }
-        input, select, textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; background: #FAFAFB; }
-        
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); z-index: 100; display: none; max-height: 200px; overflow-y: auto; border-radius: 0 0 6px 6px; }
-        .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        .search-item:hover { background: #f0f4f0; }
+        label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 500;}
+        input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s;}
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background-color: #fff;}
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        button.btn-primary { width: 100%; padding: 0.9rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: 0.2s;}
+        button.btn-primary:hover { background-color: #7A897A; }
 
-        /* Yeşil Takvim Stili */
-        .has-brew { background: #8B9A8B !important; color: white !important; border-radius: 50%; }
+        /* ARAMA SONUÇLARI (Minnoş stil) */
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-radius: 0 0 6px 6px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; }
+        .search-item { padding: 0.75rem; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5; }
+        .search-item:hover { background-color: var(--reference-bg); }
 
-        /* Geçmiş & Kaydırma */
-        #logsContainer { overflow-y: auto; flex-grow: 1; margin-top: 1rem; padding-right: 5px; }
+        /* GEÇMİŞ VE SCROLL (Tasarımı bozmadan) */
+        #logsContainer { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
         #logsContainer::-webkit-scrollbar { width: 4px; }
         #logsContainer::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
-        .log-date-header { font-size: 0.7rem; font-weight: 800; color: var(--text-light); margin-top: 1.5rem; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 3px; }
-        .log-item { background: white; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-top: 0.5rem; }
+        .log-date-header { font-size: 0.75rem; font-weight: 700; color: var(--text-light); margin: 1.2rem 0 0.5rem 0; text-transform: uppercase; }
+        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1rem; border-radius: 6px; margin-bottom: 0.8rem; font-size: 0.9rem; }
 
-        .btn-primary { width: 100%; padding: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
-        
-        .ref-card { background: var(--reference-bg); border-radius: 8px; padding: 1.2rem; display: none; margin-bottom: 1rem; border: 1px solid var(--border-color); }
+        /* YEŞİL GÜNLER (Flatpickr özelleştirme) */
+        .has-brew-date { background: var(--primary) !important; color: white !important; border-radius: 50%; }
+
+        /* REFERANS KARTI */
+        .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: none; margin-bottom: 1.5rem;}
         .ref-card.active { display: block; }
+        .ref-badge { display: inline-block; background-color: var(--primary); color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 1rem; }
+        .ref-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
+        .ref-stat-val { font-size: 1.1rem; font-weight: 600; display: block; color: var(--text-main);}
+        .ref-stat-label { font-size: 0.75rem; color: var(--text-light); }
+        .ref-note { font-size: 0.85rem; font-style: italic; color: var(--text-light); border-left: 3px solid var(--primary); padding-left: 1rem; }
 
-        .modal { position: fixed; inset: 0; background: var(--modal-bg); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); z-index: 1000; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 350px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; backdrop-filter: blur(3px); transition: 0.3s; z-index: 1000;}
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 12px; width: 100%; max-width: 380px; }
 
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .card { height: auto; } }
     </style>
 </head>
 <body>
 
     <div class="auth-bar">
         <div class="logo">Postroast</div>
-        <div id="userInfo">
-            <span id="userEmail" style="display:none; font-size: 0.8rem; margin-right: 10px;"></span>
+        <div class="user-info" id="userInfo">
+            <span id="userEmail" style="display: none; color: var(--text-light);"></span>
             <button class="btn-outline" id="loginBtnTrigger">Giriş Yap</button>
-            <button class="btn-outline" id="logoutBtn" style="display:none;">Çıkış Yap</button>
+            <button class="btn-outline" id="logoutBtn" style="display: none;">Çıkış Yap</button>
         </div>
     </div>
 
@@ -68,63 +79,64 @@
             
             <div class="form-group">
                 <label>Demleme Tarihi</label>
-                <input type="text" id="entryDate" placeholder="Tarih seçin...">
+                <input type="text" id="brewDateInput" placeholder="Tarih seçin...">
             </div>
 
             <div class="form-group">
-                <label>Çekirdek Ara & Seç</label>
-                <input type="text" id="beanSearch" placeholder="Kavurucu veya çekirdek adı..." autocomplete="off">
+                <label>Çekirdek Ara</label>
+                <input type="text" id="beanSearch" placeholder="Kavurucu veya çekirdek..." autocomplete="off">
                 <div id="searchResults" class="search-results"></div>
-                <select id="finalBeanSelect" style="display:none;"></select>
+                <select id="finalBeanSelect" style="display: none;"></select>
             </div>
 
             <div class="ref-card" id="refCard">
-                <p style="font-size: 0.7rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">REFERANS</p>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
-                    <div><span id="refTemp" style="font-weight: 600;">-</span><br><small>Isı</small></div>
-                    <div><span id="refGrind" style="font-weight: 600;">-</span><br><small>Klik</small></div>
-                    <div><span id="refRatio" style="font-weight: 600;">-</span><br><small>Oran</small></div>
+                <span class="ref-badge">Referans</span>
+                <div class="ref-stats">
+                    <div><span class="ref-stat-val" id="refTemp">-</span><span class="ref-stat-label">Isı</span></div>
+                    <div><span class="ref-stat-val" id="refGrind">-</span><span class="ref-stat-label">Klik</span></div>
+                    <div><span class="ref-stat-val" id="refRatio">-</span><span class="ref-stat-label">Oran</span></div>
                 </div>
-                <p id="refNote" style="font-size: 0.8rem; font-style: italic; margin-top: 10px; color: var(--text-light);"></p>
+                <p class="ref-note" id="refNote">-</p>
             </div>
 
             <div class="form-group">
-                <label>Değirmen</label>
+                <label>Kullanılan Değirmen</label>
                 <select id="grinderSelect"><option value="">Değirmenler yükleniyor...</option></select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="form-group"><label>Isı (°C)</label><input type="number" id="tempInput"></div>
-                <div class="form-group"><label>Klik</label><input type="number" id="clickInput"></div>
+            <div class="grid-2">
+                <div class="form-group"><label>Sıcaklık (°C)</label><input type="number" id="tempInput" placeholder="92"></div>
+                <div class="form-group"><label>Klik / Ayar</label><input type="number" id="clickInput" placeholder="24"></div>
             </div>
 
             <div class="form-group"><label>Tadım Notları</label><textarea id="notesInput" rows="2"></textarea></div>
-            
             <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
-            <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 10px;"></p>
+            <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 1rem;"></p>
         </div>
 
         <div class="card">
             <h2>Geçmiş Demlemelerim</h2>
             
             <div class="form-group">
-                <label>Tarihe Git (Yeşiller demleme olan günler)</label>
-                <input type="text" id="calendarView" placeholder="Takvimi aç...">
+                <label>Tarihe Göre Filtrele (Yeşiller demleme olan günler)</label>
+                <input type="text" id="historyCalendar" placeholder="Takvimi aç...">
             </div>
 
             <div id="logsContainer">
-                <p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Giriş yapın.</p>
+                <p style="color: var(--text-light); text-align: center; margin-top: 2rem;">Lütfen giriş yapın.</p>
             </div>
         </div>
     </div>
 
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <h3 style="margin-bottom: 1rem; text-align: center;">Postroast Giriş</h3>
-            <input type="email" id="authEmail" placeholder="kahve@mail.com" style="margin-bottom: 1rem;">
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAACfmb3Fmt8T7v11x" style="margin-bottom: 1rem; display: flex; justify-content: center;"></div>
-            <button class="btn-primary" id="magicLinkBtn">Bağlantı Gönder</button>
-            <div id="magicSuccess" style="display:none; color: green; font-size: 0.8rem; margin-top: 10px; text-align: center;">E-postanı kontrol et!</div>
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Postroast Giriş</h2>
+            <div id="magicLinkForm">
+                <input type="email" id="authEmail" placeholder="kahve@mail.com" style="margin-bottom: 1rem; text-align: center;">
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAACfmb3Fmt8T7v11x" style="display: flex; justify-content: center; margin-bottom: 1rem;"></div>
+                <button class="btn-primary" id="magicLinkBtn">Bağlantı Gönder</button>
+            </div>
+            <div id="magicLinkSuccess" style="display: none; text-align: center; color: #2e7d32; background: #e8f5e9; padding: 1rem; border-radius: 6px;">E-postanı kontrol et!</div>
         </div>
     </div>
 
@@ -134,53 +146,43 @@
         const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentBeans = [], brewLogs = [], currentUser = null;
-        let entryPicker, viewPicker;
+        let brewDatePicker, historyDatePicker;
 
-        // --- TAKVİMLERİ BAŞLAT (Flatpickr) ---
-        function setupCalendars(highlightDates = []) {
-            // Sol taraf: Veri girişi için
-            entryPicker = flatpickr("#entryDate", { defaultDate: "today", dateFormat: "Y-m-d", locale: "tr" });
-
-            // Sağ taraf: Görüntüleme ve Yeşil günler için
-            viewPicker = flatpickr("#calendarView", {
-                inline: false,
+        // --- TAKVİM KURULUMU (Yeşil günlerle beraber) ---
+        function initCalendars(highlightDates = []) {
+            brewDatePicker = flatpickr("#brewDateInput", { defaultDate: "today", dateFormat: "Y-m-d" });
+            
+            historyDatePicker = flatpickr("#historyCalendar", {
                 dateFormat: "Y-m-d",
                 onDayCreate: (dObj, dStr, fp, dayElem) => {
                     const dateStr = dayElem.dateObj.toISOString().split('T')[0];
                     if (highlightDates.includes(dateStr)) {
-                        dayElem.classList.add("has-brew");
+                        dayElem.classList.add("has-brew-date");
                     }
                 },
                 onChange: (selectedDates, dateStr) => { renderLogs(dateStr); }
             });
         }
 
-        // --- AUTH & INITIALIZE ---
-        async function init() {
-            setupCalendars();
-            fetchBeans();
-            fetchGrinders();
-        }
-
+        // --- AUTH & DATA ---
         supa.auth.onAuthStateChange((event, session) => {
             currentUser = session?.user || null;
             if (currentUser) {
                 document.getElementById('loginBtnTrigger').style.display = 'none';
                 document.getElementById('logoutBtn').style.display = 'block';
                 document.getElementById('userEmail').innerText = currentUser.email;
-                document.getElementById('userEmail').style.display = 'inline';
+                document.getElementById('userEmail').style.display = 'block';
                 fetchLogs();
             }
         });
 
-        // --- VERİ İŞLEMLERİ ---
         async function fetchLogs() {
             if (!currentUser) return;
-            const { data } = await supa.from('brew_logs').select(`*, beans(name, roaster, type), grinders(brand, model)`).order('brew_date', { ascending: false });
+            const { data } = await supa.from('brew_logs').select(`*, beans(*), grinders(*)`).order('brew_date', { ascending: false });
             if (data) {
                 brewLogs = data;
-                const dates = [...new Set(data.map(l => l.brew_date))];
-                setupCalendars(dates); // Takvimi yeşil günlerle güncelle
+                const datesWithBrews = [...new Set(data.map(l => l.brew_date))];
+                initCalendars(datesWithBrews); // Takvimi yeşil günlerle tazele
                 renderLogs();
             }
         }
@@ -188,48 +190,45 @@
         function renderLogs(filterDate = null) {
             const container = document.getElementById('logsContainer');
             container.innerHTML = '';
-            
             const filtered = brewLogs.filter(l => !filterDate || l.brew_date === filterDate);
-            if (filtered.length === 0) { container.innerHTML = '<p style="font-size: 0.8rem; color: gray; text-align: center;">Kayıt yok.</p>'; return; }
-
+            
             let lastDate = "";
             filtered.forEach(log => {
                 if (log.brew_date !== lastDate) {
                     const h = document.createElement('div'); h.className = 'log-date-header'; h.innerText = log.brew_date;
                     container.appendChild(h); lastDate = log.brew_date;
                 }
-                const item = document.createElement('div');
-                item.className = 'log-item';
-                item.innerHTML = `<strong>${log.beans?.roaster} - ${log.beans?.name}</strong><br><small>${log.temperature}°C | ${log.clicks} Klik</small>`;
-                container.appendChild(item);
+                const div = document.createElement('div');
+                div.className = 'log-item';
+                div.innerHTML = `<strong>${log.beans?.roaster} - ${log.beans?.name}</strong><br><span style="color:var(--text-light); font-size:0.8rem;">${log.temperature}°C | ${log.clicks} Klik</span>`;
+                container.appendChild(div);
             });
         }
 
         // --- KAYDETME (DÜZELTİLDİ) ---
         document.getElementById('saveBtn').addEventListener('click', async () => {
             const beanId = document.getElementById('finalBeanSelect').value;
-            const selectedDate = document.getElementById('entryDate').value; // TAKVİMDEN GELEN TARİH
-
-            if (!currentUser || !beanId) return alert("Lütfen giriş yapın ve çekirdeğe TIKLAYARAK seçin.");
+            const date = document.getElementById('brewDateInput').value;
+            if (!currentUser || !beanId) return alert("Lütfen çekirdek seçin!");
 
             const { error } = await supa.from('brew_logs').insert([{
                 user_id: currentUser.id,
                 bean_id: beanId,
-                brew_date: selectedDate, // DB'ye gönderilen tarih
+                brew_date: date, // Seçilen tarih artık doğru gidiyor
+                grinder_id: document.getElementById('grinderSelect').value || null,
                 temperature: document.getElementById('tempInput').value,
                 clicks: document.getElementById('clickInput').value,
-                notes: document.getElementById('notesInput').value,
-                grinder_id: document.getElementById('grinderSelect').value || null
+                notes: document.getElementById('notesInput').value
             }]);
 
             if (!error) {
-                document.getElementById('statusMsg').innerText = "Kaydedildi! Takvim güncelleniyor...";
-                fetchLogs(); // Listeyi ve yeşil günleri tazele
-                setTimeout(() => document.getElementById('statusMsg').innerText = "", 2000);
+                document.getElementById('statusMsg').innerText = "✅ Başarıyla kaydedildi!";
+                fetchLogs();
+                setTimeout(() => document.getElementById('statusMsg').innerText = "", 3000);
             }
         });
 
-        // (fetchBeans, fetchGrinders, Arama ve Auth kodları öncekiyle aynı şekilde devam eder...)
+        // --- ARAMA, DEĞİRMEN VE DİĞERLERİ (ORİJİNAL) ---
         async function fetchBeans() {
             const { data } = await supa.from('beans').select('*');
             if (data) { currentBeans = data; data.forEach(b => document.getElementById('finalBeanSelect').add(new Option(b.name, b.id))); }
@@ -238,7 +237,10 @@
         async function fetchGrinders() {
             const { data } = await supa.from('grinders').select('*');
             const sel = document.getElementById('grinderSelect');
-            if (data) { sel.innerHTML = '<option value="">Değirmen...</option>'; data.forEach(g => sel.add(new Option(`${g.brand} ${g.model}`, g.id))); }
+            if (data) {
+                sel.innerHTML = '<option value="">Değirmen Seçin...</option>';
+                data.forEach(g => sel.add(new Option(`${g.brand} ${g.model}`, g.id)));
+            }
         }
 
         document.getElementById('beanSearch').addEventListener('input', (e) => {
@@ -255,7 +257,8 @@
                         document.getElementById('beanSearch').value = `${b.roaster} - ${b.name}`;
                         document.getElementById('finalBeanSelect').value = b.id;
                         res.style.display = 'none';
-                        document.getElementById('refCard').classList.add('active');
+                        const rc = document.getElementById('refCard');
+                        rc.classList.add('active');
                         document.getElementById('refTemp').innerText = b.ref_temp;
                         document.getElementById('refGrind').innerText = b.ref_grind;
                         document.getElementById('refRatio').innerText = b.ref_ratio;
@@ -270,12 +273,15 @@
         document.getElementById('logoutBtn').addEventListener('click', () => supa.auth.signOut());
         document.getElementById('magicLinkBtn').addEventListener('click', async () => {
             const email = document.getElementById('authEmail').value;
-            const token = document.querySelector('[name="cf-turnstile-response"]')?.value;
-            await supa.auth.signInWithOtp({ email, options: { captchaToken: token } });
-            document.getElementById('magicSuccess').style.display = 'block';
+            const turnstile = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            await supa.auth.signInWithOtp({ email, options: { captchaToken: turnstile } });
+            document.getElementById('magicLinkForm').style.display = 'none';
+            document.getElementById('magicLinkSuccess').style.display = 'block';
         });
 
-        init();
+        initCalendars();
+        fetchBeans();
+        fetchGrinders();
     </script>
 </body>
 </html>
