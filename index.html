@@ -13,19 +13,26 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
+        /* Cloudflare Çerçeve Gizleme */
+        iframe { border: none !important; outline: none !important; box-shadow: none !important; }
+
         .auth-bar { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
         .logo { font-size: 1.5rem; font-weight: 600; }
         .user-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s; }
 
         .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 850px; }
+        /* Kart boyunu yeni elemanlar için biraz esnettik */
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; min-height: 950px; }
         h2 { font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
         
         .form-group { margin-bottom: 1.2rem; position: relative; }
         label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 500;}
         input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s;}
         
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
         .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
         .tab-btn { flex: 1; padding: 0.5rem; font-size: 0.75rem; border: 1px solid var(--border-color); background: white; border-radius: 4px; cursor: pointer; color: var(--text-light); }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -44,8 +51,7 @@
         
         .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: none; margin-bottom: 1.5rem;}
         .ref-card.active { display: block; }
-	/* Cloudflare çerçeve çizgilerini gizler */
-		iframe { border: none !important; outline: none !important; box-shadow: none !important; }
+
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; backdrop-filter: blur(3px); transition: 0.3s; z-index: 1000;}
         .modal.active { opacity: 1; visibility: visible; }
         .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 12px; width: 350px; }
@@ -66,7 +72,7 @@
 
     <div class="container">
         <div class="card">
-            <h2>Beanology Veri Girişi</h2>
+            <h2>Demleme Notları</h2>
             
             <div class="form-group">
                 <label>Çekirdek Ara & Seç</label>
@@ -83,12 +89,40 @@
                 </div>
             </div>
 
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Ekipman</label>
+                    <select id="brewerSelect">
+                        <option value="">Seçiniz...</option>
+                        <option value="V60">V60</option>
+                        <option value="V27">V27</option>
+                        <option value="AeroPress">AeroPress</option>
+                        <option value="French Press">French Press</option>
+                        <option value="Origami">Origami</option>
+                        <option value="Hario Switch">Hario Switch</option>
+                        <option value="Crystal Eye">Crystal Eye</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Filtre Kağıdı</label>
+                    <select id="filterSelect">
+                        <option value="">Seçiniz...</option>
+                        <option value="Abaca Plus">Abaca Plus</option>
+                        <option value="Hario Japan">Hario Japan</option>
+                        <option value="TH-1">TH-1</option>
+                        <option value="TH-2">TH-2</option>
+                        <option value="TH-3">TH-3</option>
+                        <option value="Yok / Metal">Yok / Metal</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>Değirmen</label>
                 <select id="grinderSelect"><option value="">Değirmenler yükleniyor...</option></select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="grid-2">
                 <div class="form-group"><label>Sıcaklık (°C)</label><input type="number" id="tempInput" placeholder="92"></div>
                 <div class="form-group"><label>Klik</label><input type="number" id="clickInput" placeholder="24"></div>
             </div>
@@ -96,6 +130,11 @@
             <div class="form-group">
                 <label>Kullanılan Su</label>
                 <input type="text" id="waterInput" placeholder="Örn: Buzdağı, Arıtma, Peak Water">
+            </div>
+            <div class="grid-3">
+                <div class="form-group"><label>Kalsiyum</label><input type="number" step="0.1" id="waterCa" placeholder="Ca"></div>
+                <div class="form-group"><label>Sodyum</label><input type="number" step="0.1" id="waterNa" placeholder="Na"></div>
+                <div class="form-group"><label>Potasyum</label><input type="number" step="0.1" id="waterK" placeholder="K"></div>
             </div>
 
             <div class="form-group">
@@ -148,23 +187,19 @@
         const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentBeans = [], brewLogs = [], currentUser = null;
-        
-        // BUG FIX 1: Saat dilimi problemi için tarihi yerel saate göre alıyoruz.
-        let selectedDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD formatı
+        let selectedDate = new Date().toLocaleDateString('en-CA');
         document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${selectedDate}`;
         
-        let activeTypeFilter = 'filtre'; // BUG FIX 2: Varsayılan filtre artık "Filtre"
-        let fpInstance = null; // BUG FIX 3: Takvimin üst üste binip bozulmasını engellemek için
+        let activeTypeFilter = 'filtre'; 
+        let fpInstance = null;
 
         function initCalendar(highlightDates = []) {
-            // Eğer takvim daha önce oluşturulduysa, eskisini yok edip yenisini kuruyoruz ki bozulmasın.
             if (fpInstance) fpInstance.destroy();
 
             fpInstance = flatpickr("#masterCalendar", {
-                defaultDate: selectedDate, // Her zaman seçili kalan tarihi korur
+                defaultDate: selectedDate, 
                 dateFormat: "Y-m-d",
                 onDayCreate: (dObj, dStr, fp, dayElem) => {
-                    // Saat dilimi hatasını düzeltmek için formatDate kullanıldı
                     const dateStr = fp.formatDate(dayElem.dateObj, "Y-m-d");
                     if (highlightDates.includes(dateStr)) dayElem.classList.add("has-brew-date");
                 },
@@ -215,12 +250,30 @@
             filtered.forEach(log => {
                 const div = document.createElement('div');
                 div.className = 'log-item';
-                div.innerHTML = `<strong>${log.beans?.roaster} - ${log.beans?.name}</strong><br><small>${log.temperature}°C | ${log.clicks} Klik | ${log.water || '-'}</small><br><em style="font-size:0.75rem; color:var(--text-light)">"${log.notes || ''}"</em>`;
+                
+                // Ekipman ve Filtre Gösterimi
+                const brewerInfo = log.brewer ? log.brewer : '';
+                const filterInfo = log.filter_paper ? ` (${log.filter_paper})` : '';
+                const equipStr = (brewerInfo || filterInfo) ? `<div style="color:var(--primary); font-size:0.75rem; font-weight:600; margin:3px 0;">☕ ${brewerInfo}${filterInfo}</div>` : '';
+
+                // Su ve Mineral Gösterimi
+                const waterDetails = [];
+                if(log.water) waterDetails.push(log.water);
+                if(log.water_ca) waterDetails.push(`Ca:${log.water_ca}`);
+                if(log.water_na) waterDetails.push(`Na:${log.water_na}`);
+                if(log.water_k) waterDetails.push(`K:${log.water_k}`);
+                const waterStr = waterDetails.length > 0 ? ` | Su: ${waterDetails.join(', ')}` : '';
+
+                div.innerHTML = `
+                    <strong>${log.beans?.roaster} - ${log.beans?.name}</strong>
+                    ${equipStr}
+                    <div style="font-size:0.8rem;">${log.temperature}°C | ${log.clicks} Klik ${waterStr}</div>
+                    <em style="font-size:0.75rem; color:var(--text-light); display:block; margin-top:4px;">"${log.notes || ''}"</em>
+                `;
                 container.appendChild(div);
             });
         }
 
-        // --- KAYDET BUTONU (HATA YAKALAMA EKLENDİ) ---
         document.getElementById('saveBtn').addEventListener('click', async () => {
             const status = document.getElementById('statusMsg');
             const beanId = document.getElementById('finalBeanSelect').value;
@@ -234,30 +287,32 @@
             const { error } = await supa.from('brew_logs').insert([{
                 user_id: currentUser.id,
                 bean_id: beanId,
-                brew_date: selectedDate, // Takvimden gelen (saat dilimi düzeltilmiş) tarih
+                brew_date: selectedDate,
+                brewer: document.getElementById('brewerSelect').value || null,
+                filter_paper: document.getElementById('filterSelect').value || null,
                 grinder_id: document.getElementById('grinderSelect').value || null,
-                temperature: document.getElementById('tempInput').value,
-                clicks: document.getElementById('clickInput').value,
-                water: document.getElementById('waterInput').value,
-                notes: document.getElementById('notesInput').value
+                temperature: document.getElementById('tempInput').value || null,
+                clicks: document.getElementById('clickInput').value || null,
+                water: document.getElementById('waterInput').value || null,
+                water_ca: document.getElementById('waterCa').value || null,
+                water_na: document.getElementById('waterNa').value || null,
+                water_k: document.getElementById('waterK').value || null,
+                notes: document.getElementById('notesInput').value || null
             }]);
 
             if (error) {
-                // BUG FIX 4: Artık hata varsa gizlice kalmıyor, ekrana basılıyor.
                 status.style.color = "#d9534f"; 
                 status.innerText = "Hata: " + error.message; 
-                console.error(error);
             } else {
                 status.style.color = "var(--primary)"; 
                 status.innerText = "✅ Başarıyla kaydedildi!"; 
                 
                 // Formu temizle
-                document.getElementById('tempInput').value = '';
-                document.getElementById('clickInput').value = '';
-                document.getElementById('waterInput').value = '';
-                document.getElementById('notesInput').value = '';
+                ['tempInput', 'clickInput', 'waterInput', 'waterCa', 'waterNa', 'waterK', 'notesInput', 'brewerSelect', 'filterSelect'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
                 
-                fetchLogs(); // Listeyi ve takvimi güncelle
+                fetchLogs(); 
                 setTimeout(() => status.innerText = "", 3000); 
             }
         });
@@ -307,11 +362,19 @@
             if (data) { sel.innerHTML = '<option value="">Değirmen Seçin...</option>'; data.forEach(g => sel.add(new Option(`${g.brand} ${g.model}`, g.id))); }
         }
 
+        // --- MODAL İŞLEMLERİ ---
         document.getElementById('loginBtnTrigger').addEventListener('click', () => {
             document.getElementById('authModal').classList.add('active');
             document.getElementById('magicLinkForm').style.display = 'block';
             document.getElementById('magicLinkSuccess').style.display = 'none';
             document.getElementById('authErrorMsg').innerText = '';
+        });
+
+        // BUG FIX: Boşluğa tıklayınca modal kapansın
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target.id === 'authModal') {
+                this.classList.remove('active');
+            }
         });
 
         document.getElementById('magicLinkBtn').addEventListener('click', async () => {
@@ -338,14 +401,6 @@
         document.getElementById('logoutBtn').addEventListener('click', () => supa.auth.signOut());
 
         initCalendar(); fetchBeans(); fetchGrinders();
-		document.getElementById('authModal').addEventListener('click', function(e) {
-    if (e.target.id === 'authModal') {
-        this.classList.remove('active');
-        // İstersen formu da sıfırlayabilirsin:
-        document.getElementById('authEmail').value = '';
-        document.getElementById('authErrorMsg').innerText = '';
-    }
-});
     </script>
 </body>
 </html>
