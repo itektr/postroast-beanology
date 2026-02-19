@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
-	/* Cloudflare çerçeve çizgilerini gizler */
-iframe { border: none !important; outline: none !important; box-shadow: none !important; }
         :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
@@ -46,7 +44,8 @@ iframe { border: none !important; outline: none !important; box-shadow: none !im
         
         .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: none; margin-bottom: 1.5rem;}
         .ref-card.active { display: block; }
-
+	/* Cloudflare çerçeve çizgilerini gizler */
+		iframe { border: none !important; outline: none !important; box-shadow: none !important; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; backdrop-filter: blur(3px); transition: 0.3s; z-index: 1000;}
         .modal.active { opacity: 1; visibility: visible; }
         .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 12px; width: 350px; }
