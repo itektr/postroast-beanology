@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
+	/* Cloudflare çerçeve çizgilerini gizler */
+iframe { border: none !important; outline: none !important; box-shadow: none !important; }
         :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
@@ -337,6 +339,14 @@
         document.getElementById('logoutBtn').addEventListener('click', () => supa.auth.signOut());
 
         initCalendar(); fetchBeans(); fetchGrinders();
+		document.getElementById('authModal').addEventListener('click', function(e) {
+    if (e.target.id === 'authModal') {
+        this.classList.remove('active');
+        // İstersen formu da sıfırlayabilirsin:
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authErrorMsg').innerText = '';
+    }
+});
     </script>
 </body>
 </html>
