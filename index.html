@@ -189,12 +189,6 @@
                 <label>Tadım Notları</label>
                 <textarea id="notesInput" style="flex-grow: 1; resize: none;" placeholder="Demleme, teknik verilerin ötesinde bir atmosfer meselesidir. Suyun derecesi kadar ruh haliniz ve fondaki müziğin de bardağa dahil olduğunu biliyoruz. Bugün bardağınızda Lezzet, Aroma, Asidite, Gövde ve Yoğunluk nasıl?"></textarea>
             </div>
-            
-            <div style="margin-top: 1rem;">
-                <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 8px; font-weight: 600; text-align: center;">Seçili Gün: Bugün</p>
-                <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
-                <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 8px; font-weight: 600;"></p>
-            </div>
         </div>
 
         <div class="card">
@@ -218,6 +212,12 @@
                     <label>Takvim</label>
                     <input type="text" id="masterCalendar" placeholder="Tarih Seç...">
                 </div>
+            </div>
+
+            <div style="margin-top: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 8px; font-weight: 600; text-align: center;">Seçili Gün: Bugün</p>
+                <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
+                <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 8px; font-weight: 600;"></p>
             </div>
 
             <div id="logsContainer"></div>
