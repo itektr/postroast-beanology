@@ -12,7 +12,6 @@
         :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         
-        /* Sayfanın sonsuza uzamasını engelliyoruz. Tam ekran oturacak. */
         body { background-color: var(--bg-color); color: var(--text-main); padding: 1rem 2rem; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
         iframe { border: none !important; outline: none !important; box-shadow: none !important; }
@@ -22,17 +21,14 @@
         .user-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s; font-size: 0.85rem;}
 
-        /* 3'LÜ GRID YAPISI VE KARTLARIN DİNAMİK BOYU */
         .container { max-width: 1300px; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; flex-grow: 1; min-height: 0; }
         
-        /* Kartların içi taşarsa kendi içinde kaydırır, sayfayı uzatmaz */
         .card { background-color: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; }
         .card::-webkit-scrollbar { width: 4px; }
         .card::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
         h2 { font-size: 1.05rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
         
-        /* Form elemanları biraz daha sıkılaştırıldı */
         .form-group { margin-bottom: 0.8rem; position: relative; }
         label { display: block; font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.3rem; font-weight: 500;}
         input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s; font-size: 0.85rem;}
@@ -48,7 +44,7 @@
         .search-item { padding: 0.6rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid #f5f5f5; }
         .search-item:hover { background-color: var(--reference-bg); }
 
-        #logsContainer { overflow-y: auto; flex-grow: 1; padding-right: 5px; margin-top: 1rem;}
+        #logsContainer { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
         .log-date-header { font-size: 0.7rem; font-weight: 700; color: var(--text-light); margin: 1rem 0 0.4rem 0; text-transform: uppercase; }
         .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 0.6rem; font-size: 0.85rem; }
         
@@ -65,7 +61,6 @@
         .ref-stat-label { font-size: 0.7rem; color: var(--text-light); }
         .ref-note { font-size: 0.8rem; font-style: italic; color: var(--text-light); border-left: 3px solid var(--primary); padding-left: 0.8rem; }
 
-        /* FOOTER */
         .footer { width: 100%; max-width: 1300px; display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-top: 1rem; padding-top: 0.5rem; color: var(--text-light); font-size: 0.75rem; font-weight: 500; border-top: 1px solid var(--border-color); }
         .footer a { color: var(--text-light); display: flex; align-items: center; text-decoration: none; transition: 0.2s; }
         .footer a:hover { color: var(--primary); }
@@ -475,9 +470,11 @@
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {await supa.auth.signOut();
-    window.location.reload(); // Ekranı anında tertemiz yapar
-	});
+        // ÇIKIŞ YAP KODU GÜNCELLENDİ (Sayfayı yeniler)
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supa.auth.signOut();
+            window.location.reload(); 
+        });
 
         initCalendar(); fetchBeans(); fetchGrinders();
     </script>
