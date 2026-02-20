@@ -153,6 +153,14 @@
             </div>
 
             <div class="form-group">
+                <label>
+                    Kavrum Tarihi 
+                    <span id="days-post-roast-label" style="float: right; color: var(--primary); font-weight: 600;"></span>
+                </label>
+                <input type="date" id="roastDateInput">
+            </div>
+
+            <div class="form-group">
                 <label>Kullanılan Su</label>
                 <input type="text" id="waterInput" placeholder="Örn: Buzdağı, Arıtma...">
             </div>
@@ -179,7 +187,7 @@
 
             <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
                 <label>Tadım Notları</label>
-                <textarea id="notesInput" style="flex-grow: 1; resize: none;" placeholder="Unutmayın; iyi bir kahve sadece çekirdekle değil, o anki ruh halimiz ve arka planda çalan müzikle de demlenir. Bardaktaki notalar neler?"></textarea>
+                <textarea id="notesInput" style="flex-grow: 1; resize: none;" placeholder="Demleme, teknik verilerin ötesinde bir atmosfer meselesidir. Suyun derecesi kadar ruh haliniz ve fondaki müziğin de bardağa dahil olduğunu biliyoruz. Bugün bardağınızda Lezzet, Aroma, Asidite, Gövde ve Yoğunluk nasıl?"></textarea>
             </div>
             
             <div style="margin-top: 1rem;">
@@ -255,6 +263,8 @@
         let activeTypeFilter = 'filtre'; 
         let fpInstance = null;
 
+        initCalendar(); fetchBeans(); fetchGrinders();
+
         function initCalendar(highlightDates = []) {
             if (fpInstance) fpInstance.destroy();
 
@@ -327,6 +337,7 @@
 
                 const agtronStr = log.agtron ? ` | Agtron: ${log.agtron}` : '';
                 const timeStr = log.brew_time ? ` | ⏱️ ${log.brew_time}` : '';
+                const roastStr = log.days_post_roast !== null && log.days_post_roast !== undefined ? ` | ⏳ ${log.days_post_roast}. Gün` : '';
 
                 const moodTag = log.mood ? `<span class="vibe-tag">🎭 ${log.mood}</span>` : '';
                 const musicTag = log.music ? `<span class="vibe-tag">🎵 ${log.music}</span>` : '';
@@ -335,7 +346,7 @@
                 div.innerHTML = `
                     <div style="margin-bottom: 4px;">${methodBadge}<strong>${log.beans?.roaster} - ${log.beans?.name}</strong></div>
                     ${equipStr}
-                    <div style="font-size:0.8rem;">${log.temperature || '-'}°C | ${log.clicks || '-'} Klik${agtronStr}${timeStr}${waterStr}</div>
+                    <div style="font-size:0.8rem;">${log.temperature || '-'}°C | ${log.clicks || '-'} Klik${agtronStr}${timeStr}${roastStr}${waterStr}</div>
                     <em style="font-size:0.75rem; color:var(--text-light); display:block; margin-top:6px;">"${log.notes || ''}"</em>
                     ${vibeSection}
                 `;
@@ -343,12 +354,47 @@
             });
         }
 
+        // KAVRUM TARİHİ HESAPLAMA OLAYI
+        document.getElementById('roastDateInput').addEventListener('change', function(e) {
+            const label = document.getElementById('days-post-roast-label');
+            if (!e.target.value) {
+                label.innerText = "";
+                return;
+            }
+            const roastDate = new Date(e.target.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            roastDate.setHours(0, 0, 0, 0);
+            
+            const diffDays = Math.ceil((today - roastDate) / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                label.innerText = "🚀 Gelecek";
+            } else if (diffDays === 0) {
+                label.innerText = "Kavrum günü";
+            } else {
+                label.innerText = `${diffDays}. Gün`;
+            }
+        });
+
         document.getElementById('saveBtn').addEventListener('click', async () => {
             const status = document.getElementById('statusMsg');
             const beanId = document.getElementById('finalBeanSelect').value;
 
             if (!currentUser) { status.style.color = "#d9534f"; status.innerText = "⚠️ Lütfen önce giriş yapın!"; return; }
             if (!beanId) { status.style.color = "#d9534f"; status.innerText = "⚠️ Lütfen bir çekirdek seçin!"; return; }
+
+            // KAYIT ANINDA GÜN FARKINI HESAPLAMA
+            let dpr = null;
+            const rDateVal = document.getElementById('roastDateInput').value;
+            if(rDateVal) {
+                const rDate = new Date(rDateVal);
+                const tDate = new Date();
+                tDate.setHours(0,0,0,0);
+                rDate.setHours(0,0,0,0);
+                const diff = Math.ceil((tDate - rDate) / (1000 * 60 * 60 * 24));
+                if(diff >= 0) dpr = diff;
+            }
 
             status.style.color = "var(--text-main)";
             status.innerText = "Kaydediliyor...";
@@ -365,6 +411,8 @@
                 clicks: document.getElementById('clickInput').value || null,
                 agtron: document.getElementById('agtronInput').value || null,
                 brew_time: document.getElementById('timeInput').value || null,
+                roast_date: rDateVal || null,
+                days_post_roast: dpr,
                 water: document.getElementById('waterInput').value || null,
                 water_ca: document.getElementById('waterCa').value || null,
                 water_na: document.getElementById('waterNa').value || null,
@@ -381,9 +429,10 @@
                 status.style.color = "var(--primary)"; 
                 status.innerText = "✅ Başarıyla kaydedildi!"; 
                 
-                ['tempInput', 'clickInput', 'agtronInput', 'timeInput', 'waterInput', 'waterCa', 'waterNa', 'waterK', 'notesInput', 'brewerSelect', 'filterSelect', 'moodInput', 'musicInput'].forEach(id => {
+                ['tempInput', 'clickInput', 'agtronInput', 'timeInput', 'waterInput', 'waterCa', 'waterNa', 'waterK', 'notesInput', 'brewerSelect', 'filterSelect', 'moodInput', 'musicInput', 'roastDateInput'].forEach(id => {
                     document.getElementById(id).value = '';
                 });
+                document.getElementById('days-post-roast-label').innerText = '';
                 
                 fetchLogs(); 
                 setTimeout(() => status.innerText = "", 3000); 
@@ -470,13 +519,11 @@
             }
         });
 
-        // ÇIKIŞ YAP KODU GÜNCELLENDİ (Sayfayı yeniler)
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             await supa.auth.signOut();
             window.location.reload(); 
         });
 
-        initCalendar(); fetchBeans(); fetchGrinders();
     </script>
 </body>
 </html>
