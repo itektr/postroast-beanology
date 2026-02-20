@@ -3,71 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Postroast | Beanology</title>
+    <title>Post Roast | Ekstraksiyon Günlüğü</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
-        :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --primary-hover: #7A897A; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
+        :root { --bg-color: #F4F4F6; --card-bg: #FFFFFF; --primary: #8B9A8B; --border-color: #E2E4E9; --text-main: #2C303A; --text-light: #8E94A3; --reference-bg: #F9FAFB; --modal-bg: rgba(44,48,58,0.5); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .auth-bar { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        /* Sayfanın sonsuza uzamasını engelliyoruz. Tam ekran oturacak. */
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 1rem 2rem; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        
+        iframe { border: none !important; outline: none !important; box-shadow: none !important; }
+
+        .auth-bar { width: 100%; max-width: 1300px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); }
         .logo { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; }
         .user-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s;}
-        .btn-outline:hover { background: var(--bg-color); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; color: var(--text-main); transition: 0.2s; font-size: 0.85rem;}
 
-        .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column;}
-        h2 { font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1.2rem; }
-        label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 500;}
-        input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s; color: var(--text-main);}
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background-color: #fff;}
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-        button.btn-primary { width: 100%; padding: 0.9rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: 0.2s;}
-        button.btn-primary:hover { background-color: var(--primary-hover); }
-        button:disabled { opacity: 0.7; cursor: not-allowed; }
+        /* 3'LÜ GRID YAPISI VE KARTLARIN DİNAMİK BOYU */
+        .container { max-width: 1300px; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; flex-grow: 1; min-height: 0; }
         
-        .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: none; margin-bottom: 1.5rem;}
+        /* Kartların içi taşarsa kendi içinde kaydırır, sayfayı uzatmaz */
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; }
+        .card::-webkit-scrollbar { width: 4px; }
+        .card::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        h2 { font-size: 1.05rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        
+        /* Form elemanları biraz daha sıkılaştırıldı */
+        .form-group { margin-bottom: 0.8rem; position: relative; }
+        label { display: block; font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.3rem; font-weight: 500;}
+        input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #FAFAFB; transition: 0.2s; font-size: 0.85rem;}
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+
+        .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .tab-btn { flex: 1; padding: 0.4rem; font-size: 0.75rem; border: 1px solid var(--border-color); background: white; border-radius: 4px; cursor: pointer; color: var(--text-light); }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 150px; overflow-y: auto; display: none; }
+        .search-item { padding: 0.6rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid #f5f5f5; }
+        .search-item:hover { background-color: var(--reference-bg); }
+
+        #logsContainer { overflow-y: auto; flex-grow: 1; padding-right: 5px; margin-top: 1rem;}
+        .log-date-header { font-size: 0.7rem; font-weight: 700; color: var(--text-light); margin: 1rem 0 0.4rem 0; text-transform: uppercase; }
+        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 0.6rem; font-size: 0.85rem; }
+        
+        .vibe-tag { font-size: 0.7rem; color: var(--primary); background: var(--reference-bg); padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; margin-right: 4px; border: 1px solid #e0e5e0; }
+        .has-brew-date { background: var(--primary) !important; color: white !important; border-radius: 50%; border: none !important; }
+
+        .btn-primary { width: 100%; padding: 0.8rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        
+        .ref-card { background-color: var(--reference-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: none; margin-bottom: 1rem;}
         .ref-card.active { display: block; }
-        .ref-badge { display: inline-block; background-color: var(--primary); color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 1rem; }
-        .ref-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
-        .ref-stat-val { font-size: 1.1rem; font-weight: 600; display: block; color: var(--text-main);}
-        .ref-stat-label { font-size: 0.75rem; color: var(--text-light); }
-        .ref-note { font-size: 0.85rem; font-style: italic; color: var(--text-light); border-left: 3px solid var(--primary); padding-left: 1rem; }
-        
-        /* Yeni: Aroma Etiketleri */
-        .tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .flavor-tag { background: #FAFAFB; border: 1px solid var(--border-color); color: var(--text-light); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; user-select: none; }
-        .flavor-tag:hover { border-color: var(--primary); color: var(--text-main); }
-        .flavor-tag.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .ref-badge { display: inline-block; background-color: var(--primary); color: white; font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ref-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.8rem; text-align: center; }
+        .ref-stat-val { font-size: 1rem; font-weight: 600; display: block; color: var(--text-main);}
+        .ref-stat-label { font-size: 0.7rem; color: var(--text-light); }
+        .ref-note { font-size: 0.8rem; font-style: italic; color: var(--text-light); border-left: 3px solid var(--primary); padding-left: 0.8rem; }
 
-        .time-inputs { display: flex; align-items: center; gap: 0.5rem; }
-        .time-inputs input { text-align: center; padding: 0.75rem 0.5rem; }
+        /* FOOTER */
+        .footer { width: 100%; max-width: 1300px; display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-top: 1rem; padding-top: 0.5rem; color: var(--text-light); font-size: 0.75rem; font-weight: 500; border-top: 1px solid var(--border-color); }
+        .footer a { color: var(--text-light); display: flex; align-items: center; text-decoration: none; transition: 0.2s; }
+        .footer a:hover { color: var(--primary); }
+        .footer svg { width: 14px; height: 14px; margin-right: 4px; }
 
-        .log-item { background: #FFFFFF; border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
-        .log-meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
-        .badge { font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); }
-        .badge-tags { background: #F0F4F0; color: #4A5D23; border: none; font-weight: 500; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 12px;}
-
-        /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; backdrop-filter: blur(3px); transition: 0.3s; z-index: 1000;}
         .modal.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transform: translateY(20px); transition: 0.3s;}
-        .modal.active .modal-content { transform: translateY(0); }
-        .modal-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; text-align: center; border: none; padding: 0;}
-        .success-box { display: none; background-color: #e8f5e9; color: #2e7d32; padding: 1rem; border-radius: 6px; text-align: center; font-size: 0.9rem; margin-top: 1rem; border: 1px solid #c8e6c9; }
+        .modal-content { background: var(--card-bg); padding: 2rem; border-radius: 12px; width: 320px; }
 
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) { 
+            body { height: auto; overflow: auto; padding: 1rem; } 
+            .container { grid-template-columns: 1fr; } 
+            .card { height: auto; overflow: visible; } 
+        }
     </style>
 </head>
 <body>
 
     <div class="auth-bar">
-        <div class="logo">Postroast</div>
-        <div class="user-info" id="userInfo">
+        <div class="logo">Post Roast</div>
+        <div class="user-info">
             <span id="userEmail" style="display: none; color: var(--text-light);"></span>
             <button class="btn-outline" id="loginBtnTrigger">Giriş Yap</button>
             <button class="btn-outline" id="logoutBtn" style="display: none;">Çıkış Yap</button>
@@ -76,95 +95,155 @@
 
     <div class="container">
         <div class="card">
-            <h2>Beanology Veri Girişi</h2>
+            <h2>Ritüel</h2>
             
+            <div class="form-group">
+                <label>Çekirdek Ara & Seç</label>
+                <input type="text" id="beanSearch" placeholder="Kavurucu veya çekirdek adı..." autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+                <select id="finalBeanSelect" style="display: none;"></select>
+            </div>
+
+            <div class="ref-card" id="refCard">
+                <span class="ref-badge">Referans</span>
+                <div class="ref-stats">
+                    <div><span class="ref-stat-val" id="refTemp">-</span><span class="ref-stat-label">Isı</span></div>
+                    <div><span class="ref-stat-val" id="refGrind">-</span><span class="ref-stat-label">Klik</span></div>
+                    <div><span class="ref-stat-val" id="refRatio">-</span><span class="ref-stat-label">Oran</span></div>
+                </div>
+                <p class="ref-note" id="refNote">Örn: Yasemin, bergamot...</p>
+            </div>
+
             <div class="grid-2">
                 <div class="form-group">
-                    <label>Yöntem</label>
-                    <select id="methodSelect">
-                        <option value="Filtre">💧 Filtre</option>
-                        <option value="Espresso">☕ Espresso</option>
+                    <label>Ekipman</label>
+                    <select id="brewerSelect">
+                        <option value="">Seçiniz...</option>
+                        <option value="V60">V60</option>
+                        <option value="V27">V27</option>
+                        <option value="AeroPress">AeroPress</option>
+                        <option value="French Press">French Press</option>
+                        <option value="Origami">Origami</option>
+                        <option value="Hario Switch">Hario Switch</option>
+                        <option value="Crystal Eye">Crystal Eye</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Çekirdek</label>
-                    <select id="beanSelect"><option value="">Yükleniyor...</option></select>
+                    <label>Filtre Kağıdı</label>
+                    <select id="filterSelect">
+                        <option value="">Seçiniz...</option>
+                        <option value="Abaca Plus">Abaca Plus</option>
+                        <option value="Hario Japan">Hario Japan</option>
+                        <option value="TH-1">TH-1</option>
+                        <option value="TH-2">TH-2</option>
+                        <option value="TH-3">TH-3</option>
+                        <option value="Yok / Metal">Yok / Metal</option>
+                    </select>
                 </div>
-            </div>
-            
-            <div class="ref-card" id="refCard">
-                <span class="ref-badge">Postroast Referans</span>
-                <div class="ref-stats">
-                    <div><span class="ref-stat-val" id="refTemp">-</span><span class="ref-stat-label">Sıcaklık</span></div>
-                    <div><span class="ref-stat-val" id="refGrind">-</span><span class="ref-stat-label">Öğütme</span></div>
-                    <div><span class="ref-stat-val" id="refRatio">-</span><span class="ref-stat-label">Oran</span></div>
-                </div>
-                <p class="ref-note" id="refNote">-</p>
             </div>
 
             <div class="form-group">
-                <label>Kullanılan Değirmen</label>
-                <select id="grinderSelect"><option value="">Yükleniyor...</option></select>
+                <label>Değirmen</label>
+                <select id="grinderSelect"><option value="">Değirmenler yükleniyor...</option></select>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group"><label>Sıcaklık (°C)</label><input type="number" id="tempInput" placeholder="92"></div>
+                <div class="form-group"><label>Klik</label><input type="number" id="clickInput" placeholder="24"></div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group"><label>Agtron</label><input type="number" id="agtronInput" placeholder="65"></div>
+                <div class="form-group"><label>Süre</label><input type="text" id="timeInput" placeholder="02:30"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Kullanılan Su</label>
+                <input type="text" id="waterInput" placeholder="Örn: Buzdağı, Arıtma...">
             </div>
             
             <div class="grid-3">
-                <div class="form-group"><label>Sıcaklık (°C)</label><input type="number" id="tempInput" placeholder="92"></div>
-                <div class="form-group"><label>Ayar / Klik</label><input type="number" id="clickInput" placeholder="23"></div>
-                <div class="form-group"><label>Agtron</label><input type="number" id="agtronInput" placeholder="Örn: 65"></div>
+                <div class="form-group"><label>Kalsiyum</label><input type="number" step="0.1" id="waterCa" placeholder="Ca"></div>
+                <div class="form-group"><label>Sodyum</label><input type="number" step="0.1" id="waterNa" placeholder="Na"></div>
+                <div class="form-group"><label>Potasyum</label><input type="number" step="0.1" id="waterK" placeholder="K"></div>
             </div>
-            
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Kullanılan Su</label>
-                    <input type="text" id="waterInput" placeholder="Buzdağı, Arıtma...">
-                </div>
-                <div class="form-group">
-                    <label>Demleme Süresi</label>
-                    <div class="time-inputs">
-                        <input type="number" id="timeMin" placeholder="Dk" min="0" max="15">
-                        <span style="color: var(--text-light);">:</span>
-                        <input type="number" id="timeSec" placeholder="Sn" min="0" max="59">
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Aroma Profili (Görsel Çark)</label>
-                <div class="tags-container" id="flavorTags">
-                    <div class="flavor-tag" data-val="Çilek">Çilek</div>
-                    <div class="flavor-tag" data-val="Karamel">Karamel</div>
-                    <div class="flavor-tag" data-val="Çikolata">Çikolata</div>
-                    <div class="flavor-tag" data-val="Yasemin">Yasemin</div>
-                    <div class="flavor-tag" data-val="Narenciye">Narenciye</div>
-                    <div class="flavor-tag" data-val="Fındık">Fındık</div>
-                    <div class="flavor-tag" data-val="Bergamot">Bergamot</div>
-                    <div class="flavor-tag" data-val="Şeftali">Şeftali</div>
-                </div>
-            </div>
-
-            <div class="form-group"><label>Ekstra Tadım Notları</label><textarea id="notesInput" rows="2" placeholder="Gövde, bitiş ve diğer hissiyatlar..."></textarea></div>
-            <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
-            <p id="statusMsg" style="margin-top: 1rem; font-size: 0.85rem; text-align: center;"></p>
         </div>
 
         <div class="card">
-            <h2>Geçmiş Demlemelerim</h2>
-            <div id="logsContainer">
-                <p style="color: var(--text-light); font-size: 0.9rem;">Verileri görmek için giriş yapın.</p>
+            <h2>Atmosfer & Deneyim</h2>
+            
+            <div class="form-group">
+                <label>Ruh Hali</label>
+                <input type="text" id="moodInput" placeholder="Örn: Yağmurlu bir sabah, dingin...">
+            </div>
+
+            <div class="form-group">
+                <label>Dinlediğiniz Müzik</label>
+                <input type="text" id="musicInput" placeholder="Örn: Miles Davis - Blue in Green">
+            </div>
+
+            <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
+                <label>Tadım Notları</label>
+                <textarea id="notesInput" style="flex-grow: 1; resize: none;" placeholder="Unutmayın; iyi bir kahve sadece çekirdekle değil, o anki ruh halimiz ve arka planda çalan müzikle de demlenir. Bardaktaki notalar neler?"></textarea>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 8px; font-weight: 600; text-align: center;">Seçili Gün: Bugün</p>
+                <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
+                <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 8px; font-weight: 600;"></p>
             </div>
         </div>
+
+        <div class="card">
+            <h2>Ritüel Arşivi</h2>
+            
+            <div class="filter-tabs">
+                <button class="tab-btn" data-type="all">Tümü</button>
+                <button class="tab-btn active" data-type="filtre">Filtre</button>
+                <button class="tab-btn" data-type="espresso">Espresso</button>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Yöntem (Kayıt İçin)</label>
+                    <select id="methodSelect">
+                        <option value="Filtre">Filtre</option>
+                        <option value="Espresso">Espresso</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Takvim</label>
+                    <input type="text" id="masterCalendar" placeholder="Tarih Seç...">
+                </div>
+            </div>
+
+            <div id="logsContainer"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>&copy; 2026 Post Roast.</span>
+        <a href="https://instagram.com/postroast.tr" target="_blank" title="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+            @postroast
+        </a>
     </div>
 
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <h2 class="modal-header">Postroast'a Katıl</h2>
-            <p style="text-align: center; color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.5rem;">Şifre yok. E-postanı gir, sana tek kullanımlık bir giriş bağlantısı gönderelim.</p>
-            <div class="form-group" id="magicLinkForm">
-                <input type="email" id="authEmail" placeholder="kahve.tutkunu@mail.com" style="margin-bottom: 1rem; text-align: center;">
+            <h3 style="text-align: center; margin-bottom: 1rem;">Post Roast Giriş</h3>
+            <div id="magicLinkForm">
+                <input type="email" id="authEmail" placeholder="kahvetutkunu@mail.com" style="margin-bottom: 1rem; text-align: center;">
                 <div class="cf-turnstile" data-sitekey="0x4AAAAAACfmb3Fmt8T7v11x" style="margin-bottom: 1rem; display: flex; justify-content: center;"></div>
-                <button class="btn-primary" id="magicLinkBtn">Sihirli Bağlantı Gönder</button>
+                <button class="btn-primary" id="magicLinkBtn">Bağlantı Gönder</button>
             </div>
-            <div class="success-box" id="magicLinkSuccess">Giriş bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.</div>
+            <div id="magicLinkSuccess" style="display: none; text-align: center; color: #2e7d32; background: #e8f5e9; padding: 1rem; border-radius: 6px; font-size: 0.8rem;">
+                <b>Giriş Linkini Gönderdik!</b><br>E-postanızı kontrol eder misiniz?
+            </div>
             <p id="authErrorMsg" style="color: #d9534f; font-size: 0.8rem; margin-top: 1rem; text-align: center;"></p>
         </div>
     </div>
@@ -174,216 +253,231 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjemFweGpmYnBkZGtidXJzc2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDQ4MTYsImV4cCI6MjA4NzA4MDgxNn0.7eyw43dNE7DRnOvRIQFanQXvUCX7bPpYh5qlrAUMMk0';
         const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        let currentBeans = [];
-        let currentUser = null;
-        let selectedFlavors = []; // Aroma etiketlerini tutan dizi
+        let currentBeans = [], brewLogs = [], currentUser = null;
+        let selectedDate = new Date().toLocaleDateString('en-CA');
+        document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${selectedDate}`;
+        
+        let activeTypeFilter = 'filtre'; 
+        let fpInstance = null;
 
-        // Aroma Etiketleri Mantığı
-        document.querySelectorAll('.flavor-tag').forEach(tag => {
-            tag.addEventListener('click', (e) => {
-                const val = e.target.getAttribute('data-val');
-                if(selectedFlavors.includes(val)) {
-                    selectedFlavors = selectedFlavors.filter(t => t !== val);
-                    e.target.classList.remove('active');
-                } else {
-                    selectedFlavors.push(val);
-                    e.target.classList.add('active');
+        function initCalendar(highlightDates = []) {
+            if (fpInstance) fpInstance.destroy();
+
+            fpInstance = flatpickr("#masterCalendar", {
+                defaultDate: selectedDate, 
+                dateFormat: "Y-m-d",
+                onDayCreate: (dObj, dStr, fp, dayElem) => {
+                    const dateStr = fp.formatDate(dayElem.dateObj, "Y-m-d");
+                    if (highlightDates.includes(dateStr)) dayElem.classList.add("has-brew-date");
+                },
+                onChange: (selectedDates, dateStr) => {
+                    selectedDate = dateStr;
+                    document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${dateStr}`;
+                    renderLogs();
                 }
             });
-        });
+        }
 
-        const authModal = document.getElementById('authModal');
-        
         supa.auth.onAuthStateChange((event, session) => {
             currentUser = session?.user || null;
-            updateAuthUI();
-            if (currentUser) {
-                authModal.classList.remove('active');
-                fetchLogs(); 
-            } else {
-                document.getElementById('logsContainer').innerHTML = '<p style="color: var(--text-light); font-size: 0.9rem;">Verileri görmek için giriş yapın.</p>';
-            }
-        });
-
-        function updateAuthUI() {
             if (currentUser) {
                 document.getElementById('loginBtnTrigger').style.display = 'none';
                 document.getElementById('logoutBtn').style.display = 'block';
-                document.getElementById('userEmail').style.display = 'block';
                 document.getElementById('userEmail').innerText = currentUser.email;
+                document.getElementById('userEmail').style.display = 'block';
+                document.getElementById('authModal').classList.remove('active');
+                fetchLogs();
             } else {
-                document.getElementById('loginBtnTrigger').style.display = 'block';
-                document.getElementById('logoutBtn').style.display = 'none';
-                document.getElementById('userEmail').style.display = 'none';
+                document.getElementById('logsContainer').innerHTML = '<p style="color:var(--text-light); text-align:center; margin-top:2rem; font-size:0.85rem;">⚠️ Arşiv kullanımı için giriş yapmalısınız.</p>';
             }
-        }
-
-        document.getElementById('loginBtnTrigger').addEventListener('click', () => {
-            authModal.classList.add('active');
-            document.getElementById('magicLinkSuccess').style.display = 'none';
-            document.getElementById('magicLinkForm').style.display = 'block';
-            document.getElementById('authErrorMsg').innerText = '';
-        });
-        
-        authModal.addEventListener('click', (e) => { if (e.target === authModal) authModal.classList.remove('active'); });
-
-        document.getElementById('magicLinkBtn').addEventListener('click', async () => {
-            const email = document.getElementById('authEmail').value;
-            const errorMsg = document.getElementById('authErrorMsg');
-            errorMsg.innerText = '';
-            
-            if(!email) return errorMsg.innerText = 'Lütfen e-posta adresinizi girin.';
-
-            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]');
-            const captchaToken = turnstileResponse ? turnstileResponse.value : '';
-
-            if (!captchaToken) return errorMsg.innerText = 'Lütfen güvenlik doğrulamasını (CAPTCHA) tamamlayın.';
-
-            const btn = document.getElementById('magicLinkBtn');
-            btn.innerText = 'Gönderiliyor...'; btn.disabled = true;
-
-            const { error } = await supa.auth.signInWithOtp({
-                email: email,
-                options: { captchaToken: captchaToken, emailRedirectTo: window.location.origin }
-            });
-
-            btn.innerText = 'Sihirli Bağlantı Gönder'; btn.disabled = false;
-
-            if (error) {
-                errorMsg.innerText = "Hata: " + error.message;
-                if(typeof turnstile !== 'undefined') turnstile.reset();
-            } else {
-                document.getElementById('magicLinkForm').style.display = 'none';
-                document.getElementById('magicLinkSuccess').style.display = 'block';
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supa.auth.signOut();
-            document.getElementById('logsContainer').innerHTML = '<p style="color: var(--text-light); font-size: 0.9rem;">Verileri görmek için giriş yapın.</p>';
-        });
-
-        async function fetchBeans() {
-            const { data } = await supa.from('beans').select('*');
-            const select = document.getElementById('beanSelect');
-            if (data) {
-                currentBeans = data;
-                select.innerHTML = '<option value="" disabled selected>Çekirdek Seçin...</option>';
-                data.forEach(bean => select.add(new Option(`${bean.roaster} - ${bean.name}`, bean.id)));
-            }
-        }
-
-        async function fetchGrinders() {
-            const { data } = await supa.from('grinders').select('*');
-            const select = document.getElementById('grinderSelect');
-            if (data) {
-                select.innerHTML = '<option value="" disabled selected>Değirmen Seçin...</option>';
-                data.forEach(g => select.add(new Option(`${g.brand} ${g.model}`, g.id)));
-            }
-        }
-
-        document.getElementById('beanSelect').addEventListener('change', (e) => {
-            const bean = currentBeans.find(b => b.id === e.target.value);
-            const refCard = document.getElementById('refCard');
-            if (bean && bean.ref_temp) {
-                document.getElementById('refTemp').innerText = bean.ref_temp;
-                document.getElementById('refGrind').innerText = bean.ref_grind;
-                document.getElementById('refRatio').innerText = bean.ref_ratio;
-                document.getElementById('refNote').innerText = bean.ref_note;
-                refCard.classList.add('active');
-            } else { refCard.classList.remove('active'); }
         });
 
         async function fetchLogs() {
-            if (!currentUser) return; 
-            const { data, error } = await supa.from('brew_logs').select(`id, method, temperature, clicks, water, agtron, brew_time, flavor_tags, notes, beans (roaster, name), grinders (brand, model)`).order('created_at', { ascending: false });
-            
-            const container = document.getElementById('logsContainer');
-            if (data && data.length > 0) {
-                container.innerHTML = '';
-                data.forEach(log => {
-                    const bName = log.beans ? `${log.beans.roaster} - ${log.beans.name}` : 'Bilinmeyen';
-                    const gName = log.grinders ? `${log.grinders.brand} ${log.grinders.model}` : '-';
-                    const methodBadge = log.method === 'Espresso' ? '☕ Espresso' : '💧 Filtre';
-                    
-                    let metaInfo = `<span class="badge">${methodBadge}</span> <span class="badge">⚙️ ${gName}</span>`;
-                    if (log.water) metaInfo += ` <span class="badge">💧 ${log.water}</span>`;
-                    if (log.agtron) metaInfo += ` <span class="badge">Agtron: ${log.agtron}</span>`;
-                    if (log.brew_time) metaInfo += ` <span class="badge">⏱️ ${log.brew_time}</span>`;
-
-                    let tagsHtml = '';
-                    if (log.flavor_tags && log.flavor_tags.length > 0) {
-                        tagsHtml = `<div style="margin-top:0.5rem; display:flex; gap:0.3rem; flex-wrap:wrap;">`;
-                        log.flavor_tags.forEach(tag => tagsHtml += `<span class="badge-tags">${tag}</span>`);
-                        tagsHtml += `</div>`;
-                    }
-                    
-                    container.innerHTML += `
-                        <div class="log-item">
-                            <strong style="color: var(--text-main); font-size:1.05rem;">${bName}</strong>
-                            <div class="log-meta" style="margin-top:0.5rem;">${metaInfo}</div>
-                            Isı: ${log.temperature || '-'}°C | Klik: ${log.clicks || '-'}<br>
-                            ${tagsHtml}
-                            <em style="color: var(--text-light); margin-top:0.5rem; display:block;">"${log.notes || '-'}"</em>
-                        </div>`;
-                });
-            } else {
-                container.innerHTML = '<p style="color: var(--text-light); font-size: 0.9rem;">Henüz kayıt yok.</p>';
+            if (!currentUser) return;
+            const { data } = await supa.from('brew_logs').select(`*, beans(*), grinders(*)`).order('brew_date', { ascending: false });
+            if (data) {
+                brewLogs = data;
+                initCalendar([...new Set(data.map(l => l.brew_date))]);
+                renderLogs();
             }
         }
 
-        document.getElementById('saveBtn').addEventListener('click', async () => {
-            if (!currentUser) return alert("Lütfen önce giriş yapın!");
+        function renderLogs() {
+            const container = document.getElementById('logsContainer');
+            if (!currentUser) return;
+            container.innerHTML = '';
             
-            const beanId = document.getElementById('beanSelect').value;
-            if (!beanId) return alert("Çekirdek seçimi zorunludur.");
+            const filtered = brewLogs.filter(l => l.brew_date === selectedDate && (activeTypeFilter === 'all' || (l.method && l.method.toLowerCase() === activeTypeFilter)));
 
-            const statusMsg = document.getElementById('statusMsg');
-            statusMsg.style.color = "var(--text-main)";
-            statusMsg.innerText = "Kaydediliyor...";
-
-            // Süreyi birleştir (Örn: "02:30")
-            const min = document.getElementById('timeMin').value;
-            const sec = document.getElementById('timeSec').value;
-            let brewTimeStr = null;
-            if(min || sec) {
-                brewTimeStr = `${min ? min.padStart(2, '0') : '00'}:${sec ? sec.padStart(2, '0') : '00'}`;
+            if (filtered.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:gray; font-size:0.8rem; margin-top:2rem;">${selectedDate} tarihinde '${activeTypeFilter.toUpperCase()}' kaydı yok.</p>`;
+                return;
             }
+
+            filtered.forEach(log => {
+                const div = document.createElement('div');
+                div.className = 'log-item';
+                
+                const methodBadge = log.method ? `<span style="background: var(--bg-color); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-right: 5px; color: var(--text-main);">${log.method === 'Espresso' ? '☕ Espresso' : '💧 Filtre'}</span>` : '';
+                const brewerInfo = log.brewer ? log.brewer : '';
+                const filterInfo = log.filter_paper ? ` (${log.filter_paper})` : '';
+                const equipStr = (brewerInfo || filterInfo) ? `<div style="color:var(--primary); font-size:0.75rem; font-weight:600; margin:3px 0;">☕ ${brewerInfo}${filterInfo}</div>` : '';
+
+                const waterDetails = [];
+                if(log.water) waterDetails.push(log.water);
+                if(log.water_ca) waterDetails.push(`Ca:${log.water_ca}`);
+                if(log.water_na) waterDetails.push(`Na:${log.water_na}`);
+                if(log.water_k) waterDetails.push(`K:${log.water_k}`);
+                const waterStr = waterDetails.length > 0 ? ` | Su: ${waterDetails.join(', ')}` : '';
+
+                const agtronStr = log.agtron ? ` | Agtron: ${log.agtron}` : '';
+                const timeStr = log.brew_time ? ` | ⏱️ ${log.brew_time}` : '';
+
+                const moodTag = log.mood ? `<span class="vibe-tag">🎭 ${log.mood}</span>` : '';
+                const musicTag = log.music ? `<span class="vibe-tag">🎵 ${log.music}</span>` : '';
+                const vibeSection = (moodTag || musicTag) ? `<div style="margin-top: 8px;">${moodTag}${musicTag}</div>` : '';
+
+                div.innerHTML = `
+                    <div style="margin-bottom: 4px;">${methodBadge}<strong>${log.beans?.roaster} - ${log.beans?.name}</strong></div>
+                    ${equipStr}
+                    <div style="font-size:0.8rem;">${log.temperature || '-'}°C | ${log.clicks || '-'} Klik${agtronStr}${timeStr}${waterStr}</div>
+                    <em style="font-size:0.75rem; color:var(--text-light); display:block; margin-top:6px;">"${log.notes || ''}"</em>
+                    ${vibeSection}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const status = document.getElementById('statusMsg');
+            const beanId = document.getElementById('finalBeanSelect').value;
+
+            if (!currentUser) { status.style.color = "#d9534f"; status.innerText = "⚠️ Lütfen önce giriş yapın!"; return; }
+            if (!beanId) { status.style.color = "#d9534f"; status.innerText = "⚠️ Lütfen bir çekirdek seçin!"; return; }
+
+            status.style.color = "var(--text-main)";
+            status.innerText = "Kaydediliyor...";
 
             const { error } = await supa.from('brew_logs').insert([{
                 user_id: currentUser.id,
                 method: document.getElementById('methodSelect').value,
                 bean_id: beanId,
+                brew_date: selectedDate,
+                brewer: document.getElementById('brewerSelect').value || null,
+                filter_paper: document.getElementById('filterSelect').value || null,
                 grinder_id: document.getElementById('grinderSelect').value || null,
                 temperature: document.getElementById('tempInput').value || null,
                 clicks: document.getElementById('clickInput').value || null,
-                water: document.getElementById('waterInput').value || null,
                 agtron: document.getElementById('agtronInput').value || null,
-                brew_time: brewTimeStr,
-                flavor_tags: selectedFlavors.length > 0 ? selectedFlavors : null,
+                brew_time: document.getElementById('timeInput').value || null,
+                water: document.getElementById('waterInput').value || null,
+                water_ca: document.getElementById('waterCa').value || null,
+                water_na: document.getElementById('waterNa').value || null,
+                water_k: document.getElementById('waterK').value || null,
+                mood: document.getElementById('moodInput').value || null,
+                music: document.getElementById('musicInput').value || null,
                 notes: document.getElementById('notesInput').value || null
             }]);
 
             if (error) {
-                statusMsg.style.color = "#d9534f";
-                statusMsg.innerText = "Hata: " + error.message;
+                status.style.color = "#d9534f"; 
+                status.innerText = "Hata: " + error.message; 
             } else {
-                statusMsg.style.color = "var(--primary)";
-                statusMsg.innerText = "Başarıyla kaydedildi!";
+                status.style.color = "var(--primary)"; 
+                status.innerText = "✅ Başarıyla kaydedildi!"; 
                 
-                // Formu Temizle
-                document.querySelectorAll('input[type="number"], input[type="text"], textarea').forEach(el => el.value = '');
-                document.querySelectorAll('.flavor-tag').forEach(tag => tag.classList.remove('active'));
-                selectedFlavors = []; // Diziyi sıfırla
+                ['tempInput', 'clickInput', 'agtronInput', 'timeInput', 'waterInput', 'waterCa', 'waterNa', 'waterK', 'notesInput', 'brewerSelect', 'filterSelect', 'moodInput', 'musicInput'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
                 
-                fetchLogs();
-                setTimeout(() => statusMsg.innerText = '', 3000);
+                fetchLogs(); 
+                setTimeout(() => status.innerText = "", 3000); 
             }
         });
 
-        fetchBeans();
-        fetchGrinders();
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeTypeFilter = btn.dataset.type;
+                renderLogs();
+            });
+        });
 
+        document.getElementById('beanSearch').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const res = document.getElementById('searchResults');
+            res.innerHTML = '';
+            if (term.length < 2) { res.style.display = 'none'; return; }
+            const matches = currentBeans.filter(b => b.name.toLowerCase().includes(term) || b.roaster.toLowerCase().includes(term));
+            if (matches.length > 0) {
+                res.style.display = 'block';
+                matches.forEach(b => {
+                    const d = document.createElement('div'); d.className = 'search-item'; d.innerHTML = `<strong>${b.roaster}</strong> - ${b.name}`;
+                    d.onclick = () => {
+                        document.getElementById('beanSearch').value = `${b.roaster} - ${b.name}`;
+                        document.getElementById('finalBeanSelect').value = b.id;
+                        res.style.display = 'none';
+                        const rc = document.getElementById('refCard');
+                        rc.classList.add('active');
+                        document.getElementById('refTemp').innerText = b.ref_temp || '-';
+                        document.getElementById('refGrind').innerText = b.ref_grind || '-';
+                        document.getElementById('refRatio').innerText = b.ref_ratio || '-';
+                        document.getElementById('refNote').innerText = b.ref_note || 'Örn: Yasemin, bergamot...';
+                    };
+                    res.appendChild(d);
+                });
+            }
+        });
+
+        async function fetchBeans() {
+            const { data } = await supa.from('beans').select('*');
+            if (data) { currentBeans = data; data.forEach(b => document.getElementById('finalBeanSelect').add(new Option(b.name, b.id))); }
+        }
+
+        async function fetchGrinders() {
+            const { data } = await supa.from('grinders').select('*');
+            const sel = document.getElementById('grinderSelect');
+            if (data) { sel.innerHTML = '<option value="">Değirmen Seçin...</option>'; data.forEach(g => sel.add(new Option(`${g.brand} ${g.model}`, g.id))); }
+        }
+
+        document.getElementById('loginBtnTrigger').addEventListener('click', () => {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('magicLinkForm').style.display = 'block';
+            document.getElementById('magicLinkSuccess').style.display = 'none';
+            document.getElementById('authErrorMsg').innerText = '';
+        });
+
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target.id === 'authModal') {
+                this.classList.remove('active');
+            }
+        });
+
+        document.getElementById('magicLinkBtn').addEventListener('click', async () => {
+            const email = document.getElementById('authEmail').value;
+            const turnstile = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            const errorMsg = document.getElementById('authErrorMsg');
+            
+            if(!email || !turnstile) {
+                errorMsg.innerText = "Lütfen e-postanızı girin ve doğrulamayı yapın.";
+                return;
+            }
+
+            const { error } = await supa.auth.signInWithOtp({ email, options: { captchaToken: turnstile } });
+            
+            if(!error) { 
+                document.getElementById('magicLinkForm').style.display = 'none'; 
+                document.getElementById('magicLinkSuccess').style.display = 'block'; 
+                errorMsg.innerText = '';
+            } else {
+                errorMsg.innerText = error.message;
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => supa.auth.signOut());
+
+        initCalendar(); fetchBeans(); fetchGrinders();
     </script>
 </body>
 </html>
