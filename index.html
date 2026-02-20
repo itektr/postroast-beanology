@@ -157,7 +157,7 @@
                     Kavrum Tarihi 
                     <span id="days-post-roast-label" style="float: right; color: var(--primary); font-weight: 600;"></span>
                 </label>
-                <input type="date" id="roastDateInput" placeholder="Tarih Seç...">
+                <input type="text" id="roastDateInput" placeholder="Tarih Seç...">
             </div>
 
             <div class="form-group">
@@ -362,27 +362,34 @@
         }
 
         // KAVRUM TARİHİ HESAPLAMA OLAYI
-        document.getElementById('roastDateInput').addEventListener('change', function(e) {
-            const label = document.getElementById('days-post-roast-label');
-            if (!e.target.value) {
-                label.innerText = "";
-                return;
-            }
-            const roastDate = new Date(e.target.value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            roastDate.setHours(0, 0, 0, 0);
-            
-            const diffDays = Math.ceil((today - roastDate) / (1000 * 60 * 60 * 24));
+			flatpickr("#roastDateInput", {
+			dateFormat: "Y-m-d", // Supabase'in sevdiği format
+			altInput: true,      // Ekranda maske kullan
+			altFormat: "d.m.Y",  // Ekranda görünen TR formatı
+			onChange: function(selectedDates, dateStr, instance) {
+				const label = document.getElementById('days-post-roast-label');
+        
+			if (selectedDates.length === 0) {
+            label.innerText = "";
+            return;
+        }
+        
+        const roastDate = selectedDates[0];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        roastDate.setHours(0, 0, 0, 0);
+        
+        const diffDays = Math.ceil((today - roastDate) / (1000 * 60 * 60 * 24));
 
-            if (diffDays < 0) {
-                label.innerText = "🚀 Kavrum olmadı";
-            } else if (diffDays === 0) {
-                label.innerText = "Kavrum günü";
-            } else {
-                label.innerText = `${diffDays}. Gün`;
-            }
-        });
+        if (diffDays < 0) {
+            label.innerText = "🚀 Gelecek";
+        } else if (diffDays === 0) {
+            label.innerText = "Kavrum günü";
+        } else {
+            label.innerText = `${diffDays}. Gün`;
+        }
+    }
+});
 
         document.getElementById('saveBtn').addEventListener('click', async () => {
             const status = document.getElementById('statusMsg');
