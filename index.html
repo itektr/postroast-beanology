@@ -157,7 +157,7 @@
                     Kavrum Tarihi 
                     <span id="days-post-roast-label" style="float: right; color: var(--primary); font-weight: 600;"></span>
                 </label>
-                <input type="date" id="roastDateInput">
+                <input type="text" id="roastDateInput" placeholder="Tarih Seç...">
             </div>
 
             <div class="form-group">
@@ -259,11 +259,11 @@
         let currentBeans = [], brewLogs = [], currentUser = null;
 		function tarihTR(dateStr) {
     if(!dateStr) return '';
-    const parcalar = dateStr.split('-');
-    return `${parcalar[2]}.${parcalar[1]}.${parcalar[0]}`;
+    const p = dateStr.split('-');
+    return `${p[2]}.${p[1]}.${p[0]}`;
 }
         let selectedDate = new Date().toLocaleDateString('en-CA');
-        document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${selectedDate}`;
+        document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${tarihTR(selectedDate)}`;
         
         let activeTypeFilter = 'filtre'; 
         let fpInstance = null;
@@ -322,7 +322,7 @@
             const filtered = brewLogs.filter(l => l.brew_date === selectedDate && (activeTypeFilter === 'all' || (l.method && l.method.toLowerCase() === activeTypeFilter)));
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:gray; font-size:0.8rem; margin-top:2rem;">${selectedDate} tarihinde '${activeTypeFilter.toUpperCase()}' kaydı yok.</p>`;
+                container.innerHTML = `<p style="text-align:center; color:gray; font-size:0.8rem; margin-top:2rem;">${tarihTR(selectedDate)} tarihinde '${activeTypeFilter.toUpperCase()}' kaydı yok.</p>`;
                 return;
             }
 
