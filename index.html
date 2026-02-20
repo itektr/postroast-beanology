@@ -214,7 +214,7 @@
                 </div>
             </div>
 
-            <div style="margin-top: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+            <div style="margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
                 <p id="targetDateDisplay" style="font-size: 0.75rem; color: var(--primary); margin-bottom: 8px; font-weight: 600; text-align: center;">Seçili Gün: Bugün</p>
                 <button class="btn-primary" id="saveBtn">Günlüğe Kaydet</button>
                 <p id="statusMsg" style="text-align: center; font-size: 0.8rem; margin-top: 8px; font-weight: 600;"></p>
@@ -369,7 +369,7 @@
             const diffDays = Math.ceil((today - roastDate) / (1000 * 60 * 60 * 24));
 
             if (diffDays < 0) {
-                label.innerText = "🚀 Gelecek";
+                label.innerText = "🚀 Kavrum olmadı";
             } else if (diffDays === 0) {
                 label.innerText = "Kavrum günü";
             } else {
