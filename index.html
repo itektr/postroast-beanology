@@ -257,6 +257,11 @@
         const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentBeans = [], brewLogs = [], currentUser = null;
+		function tarihTR(dateStr) {
+    if(!dateStr) return '';
+    const parcalar = dateStr.split('-');
+    return `${parcalar[2]}.${parcalar[1]}.${parcalar[0]}`;
+}
         let selectedDate = new Date().toLocaleDateString('en-CA');
         document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${selectedDate}`;
         
@@ -271,13 +276,15 @@
             fpInstance = flatpickr("#masterCalendar", {
                 defaultDate: selectedDate, 
                 dateFormat: "Y-m-d",
+				altInput: true,
+				altFormat: "d.m.Y",
                 onDayCreate: (dObj, dStr, fp, dayElem) => {
                     const dateStr = fp.formatDate(dayElem.dateObj, "Y-m-d");
                     if (highlightDates.includes(dateStr)) dayElem.classList.add("has-brew-date");
                 },
                 onChange: (selectedDates, dateStr) => {
                     selectedDate = dateStr;
-                    document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${dateStr}`;
+                    document.getElementById('targetDateDisplay').innerText = `Seçili Gün: ${tarihTR(dateStr)}`;
                     renderLogs();
                 }
             });
